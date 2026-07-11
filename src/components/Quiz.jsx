@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { quizStorage } from '../utils/storage';
+import siteConfig from '../data/siteConfig.json';
 
 export default function Quiz({ course, onQuizPassed }) {
   const [selectedAnswers, setSelectedAnswers] = useState({});
@@ -46,6 +47,10 @@ export default function Quiz({ course, onQuizPassed }) {
 
   const isPassed = result && result.passed;
 
+  // Prefilled WhatsApp message for certification
+  const certMessage = `Hi Dexterity Learn! I want to get certified for the course: "${course.title}" (Special Offer: ₹299). I have completed all lessons and passed the client-side quiz. Please send me the payment QR code/details.`;
+  const whatsappCertUrl = `${siteConfig.whatsappCommunity}?text=${encodeURIComponent(certMessage)}`;
+
   return (
     <div className="cert-box">
       <h3>
@@ -63,22 +68,43 @@ export default function Quiz({ course, onQuizPassed }) {
       {isPassed ? (
         <>
           <p>
-            Congratulations! You passed the quiz. Ready to make it official? Get a verified Dexterity Learn certificate for this course.
+            Congratulations! You passed the quiz. Claim your certification now to showcase your skills on your resume and LinkedIn:
           </p>
-          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginTop: '16px' }}>
+
+          <div className="cert-price-card">
+            <div className="cert-price-row">
+              <span className="cert-price-sale">₹299</span>
+              <span className="cert-price-original">₹599</span>
+              <span className="cert-price-discount">Save 50%</span>
+            </div>
+
+            <ul className="cert-bullets">
+              <li>Official PDF certificate signed by mentors</li>
+              <li>LinkedIn credential verification link</li>
+              <li>Resume booster code credential</li>
+            </ul>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '16px' }}>
             <a 
-              href={course.razorpayLink} 
+              href={whatsappCertUrl} 
               target="_blank" 
               rel="noopener noreferrer" 
-              className="btn btn-amber"
+              className="btn btn-amber btn-block"
             >
-              Get Certified
+              Get Certified on WhatsApp
             </a>
             <a 
               href={`#/course/${course.id}/certificate-confirmation`} 
-              className="btn btn-ghost-dark"
+              className="mono"
+              style={{ 
+                fontSize: '13px', 
+                color: 'var(--brand-cream)', 
+                textAlign: 'center', 
+                textDecoration: 'underline' 
+              }}
             >
-              Already paid? Continue &rarr;
+              Already paid? Verify request &rarr;
             </a>
           </div>
         </>

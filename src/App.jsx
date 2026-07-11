@@ -164,11 +164,13 @@ export default function App() {
   }
 
   return (
-    <>
+    <div className="app-container">
       <Navbar currentSegment={currentSegment} />
-      <div style={{ flex: 1 }}>{pageContent}</div>
-      <Footer />
-    </>
+      <div className="app-main-content">
+        <div style={{ flex: 1 }}>{pageContent}</div>
+        <Footer />
+      </div>
+    </div>
   );
 }
 
