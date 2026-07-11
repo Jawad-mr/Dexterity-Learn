@@ -1,0 +1,240 @@
+[
+  {
+    "id": "html-fundamentals",
+    "title": "HTML Fundamentals",
+    "shortDescription": "Structure your first web pages from scratch — elements, semantics, links, images and forms.",
+    "category": "Web Development",
+    "tags": ["html", "web basics", "beginner-friendly"],
+    "level": "Beginner",
+    "certificationAvailable": true,
+    "whatsappGroup": "https://wa.me/910000000000?text=Hi!%20I'm%20learning%20HTML%20Fundamentals",
+    "razorpayLink": "https://razorpay.me/@dexteritylearn/html-fundamentals-certificate",
+    "modules": [
+      {
+        "id": "getting-started",
+        "title": "Getting Started",
+        "lessons": [
+          {
+            "id": "what-is-html",
+            "title": "What is HTML?",
+            "content": "# What is HTML?\n\nHTML (HyperText Markup Language) is the standard language used to create the structure of every web page. It tells the browser what each piece of content **is** — a heading, a paragraph, a link, an image — not how it should look.\n\n## Elements and tags\n\nAn HTML element is written using a pair of tags:\n\n```html\n<p>This is a paragraph.</p>\n```\n\nThe opening tag `<p>` marks the start, and the closing tag `</p>` marks the end. Some elements, like `<img>`, don't need a closing tag.\n\n:::tip\nBrowsers ignore extra whitespace and line breaks in your HTML, so indent your code for readability — it won't change how the page looks.\n:::\n\n## Why HTML matters\n\nEvery website you have ever visited — no matter the framework or language behind it — sends HTML to your browser in the end. Learning HTML well makes everything else in web development easier."
+          },
+          {
+            "id": "first-page",
+            "title": "Your First HTML Page",
+            "content": "# Your First HTML Page\n\nEvery HTML document follows the same basic skeleton.\n\n:::example\n```html\n<!DOCTYPE html>\n<html>\n  <head>\n    <title>My First Page</title>\n  </head>\n  <body>\n    <h1>Hello, world!</h1>\n    <p>This is my very first web page.</p>\n  </body>\n</html>\n```\n:::\n\n- `<!DOCTYPE html>` tells the browser this is an HTML5 document.\n- `<html>` wraps the entire page.\n- `<head>` holds metadata (like the page title) that isn't shown directly on the page.\n- `<body>` holds everything visible to the visitor.\n\n:::try\nEdit the HTML below and press Run to see it rendered live.\n```html\n<h1>Hello, world!</h1>\n<p>Change this text and hit run.</p>\n```\n:::"
+          }
+        ]
+      },
+      {
+        "id": "text-and-structure",
+        "title": "Text & Structure",
+        "lessons": [
+          {
+            "id": "headings-paragraphs",
+            "title": "Headings and Paragraphs",
+            "content": "# Headings and Paragraphs\n\nHTML gives you six levels of headings, `<h1>` through `<h6>`, in decreasing order of importance, plus the `<p>` tag for paragraphs.\n\n```html\n<h1>Main Page Title</h1>\n<h2>A Section Heading</h2>\n<p>A paragraph of body text goes here.</p>\n```\n\n:::tip\nUse only one `<h1>` per page — it should describe what the whole page is about. Use lower-level headings to organize sections underneath it.\n:::"
+          },
+          {
+            "id": "lists-links",
+            "title": "Lists and Links",
+            "content": "# Lists and Links\n\n## Lists\n\nUse `<ul>` for an unordered (bulleted) list and `<ol>` for an ordered (numbered) one. Each item goes inside `<li>`.\n\n```html\n<ul>\n  <li>HTML</li>\n  <li>CSS</li>\n  <li>JavaScript</li>\n</ul>\n```\n\n## Links\n\nThe anchor tag `<a>` creates a hyperlink using the `href` attribute.\n\n```html\n<a href=\"https://example.com\">Visit Example</a>\n```\n\n:::try\n```html\n<ul>\n  <li>Learn HTML</li>\n  <li>Learn CSS</li>\n</ul>\n<a href=\"https://dexteritylearn.com\">Visit Dexterity Learn</a>\n```\n:::"
+          }
+        ]
+      },
+      {
+        "id": "media",
+        "title": "Working with Media",
+        "lessons": [
+          {
+            "id": "images",
+            "title": "Images",
+            "content": "# Images\n\nThe `<img>` tag embeds an image. It's a self-closing tag and always needs a `src` (source) and `alt` (alternative text for accessibility and SEO).\n\n```html\n<img src=\"https://picsum.photos/600/400\" alt=\"A beautiful random scenery representation\" />\n```\n\n:::tip\nNever skip the `alt` attribute — screen readers rely on it, and so does Google Image Search.\n:::"
+          },
+          {
+            "id": "bio-page-project",
+            "title": "Try It Yourself: Build a Bio Page",
+            "content": "# Try It Yourself: Build a Bio Page\n\nPut together everything from this module — headings, a paragraph, a list and a link — into one small bio page.\n\n:::try\n```html\n<h1>Hi, I'm Alex</h1>\n<p>I'm learning web development with Dexterity Learn.</p>\n<ul>\n  <li>Currently learning: HTML</li>\n  <li>Next up: CSS</li>\n</ul>\n<a href=\"https://dexteritylearn.com\">See my progress</a>\n```\n:::\n\nOnce you're happy with your page, mark this lesson complete below to finish the course."
+          }
+        ]
+      }
+    ],
+    "quiz": [
+      { "question": "What does HTML stand for?", "options": ["HyperText Markup Language", "High Tech Modern Language", "Home Tool Markup Language", "Hyperlinks and Text Markup Language"], "correctIndex": 0 },
+      { "question": "Which tag creates a hyperlink?", "options": ["<link>", "<a>", "<href>", "<url>"], "correctIndex": 1 },
+      { "question": "Which attribute provides alternative text for an image?", "options": ["title", "src", "alt", "desc"], "correctIndex": 2 },
+      { "question": "How many heading levels does HTML provide?", "options": ["3", "4", "6", "8"], "correctIndex": 2 },
+      { "question": "Which tag holds everything visible on the page?", "options": ["<head>", "<body>", "<html>", "<meta>"], "correctIndex": 1 }
+    ]
+  },
+  {
+    "id": "css-foundations",
+    "title": "CSS Foundations",
+    "shortDescription": "Style pages with confidence — selectors, the box model, flexbox and responsive basics.",
+    "category": "Web Development",
+    "tags": ["css", "styling", "responsive"],
+    "level": "Beginner",
+    "certificationAvailable": true,
+    "whatsappGroup": "https://wa.me/910000000000?text=Hi!%20I'm%20learning%20CSS%20Foundations",
+    "razorpayLink": "https://razorpay.me/@dexteritylearn/css-foundations-certificate",
+    "modules": [
+      {
+        "id": "css-basics",
+        "title": "CSS Basics",
+        "lessons": [
+          {
+            "id": "what-is-css",
+            "title": "What is CSS?",
+            "content": "# What is CSS?\n\nCSS (Cascading Style Sheets) controls how HTML elements look — colors, fonts, spacing and layout.\n\n```css\np {\n  color: #1B1F2A;\n  font-size: 16px;\n}\n```\n\nYou can attach CSS to HTML in three ways: inline (`style=\"...\"`), internal (a `<style>` block), or external (a linked `.css` file, the recommended approach)."
+          },
+          {
+            "id": "selectors",
+            "title": "Selectors",
+            "content": "# Selectors\n\nSelectors decide which elements a rule applies to.\n\n```css\n/* element selector */\np { color: gray; }\n\n/* class selector */\n.highlight { background: yellow; }\n\n/* id selector */\n#main-title { font-size: 32px; }\n```\n\n:::tip\nPrefer classes over IDs for styling — classes can be reused across many elements, IDs should stay unique per page.\n:::"
+          }
+        ]
+      },
+      {
+        "id": "box-model-layout",
+        "title": "Box Model & Layout",
+        "lessons": [
+          {
+            "id": "box-model",
+            "title": "The Box Model",
+            "content": "# The Box Model\n\nEvery HTML element is a rectangular box made of four layers, from the inside out: **content**, **padding**, **border**, and **margin**.\n\n```css\n.card {\n  padding: 16px;\n  border: 1px solid #ccc;\n  margin: 12px;\n}\n```\n\n:::example\n```html\n<div class=\"card\">Padded and bordered content</div>\n```\n:::"
+          },
+          {
+            "id": "flexbox",
+            "title": "Flexbox Basics",
+            "content": "# Flexbox Basics\n\nFlexbox makes it easy to align and distribute items along a row or column.\n\n```css\n.row {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n}\n```\n\n:::try\n```html\n<div style=\"display:flex; gap:10px; justify-content:space-between; border:1px solid #ccc; padding:10px;\">\n  <div style=\"background:#eee;padding:8px;\">Box 1</div>\n  <div style=\"background:#eee;padding:8px;\">Box 2</div>\n  <div style=\"background:#eee;padding:8px;\">Box 3</div>\n</div>\n```\n:::"
+          }
+        ]
+      }
+    ],
+    "quiz": [
+      { "question": "What does CSS stand for?", "options": ["Cascading Style Sheets", "Creative Style System", "Computer Styled Sheets", "Colorful Style Syntax"], "correctIndex": 0 },
+      { "question": "Which is the correct order of the box model, inside out?", "options": ["Margin, Border, Padding, Content", "Content, Padding, Border, Margin", "Content, Border, Padding, Margin", "Padding, Content, Margin, Border"], "correctIndex": 1 },
+      { "question": "Which property turns an element into a flex container?", "options": ["display: flex", "position: flex", "flex: true", "layout: flex"], "correctIndex": 0 },
+      { "question": "Which selector targets elements with a given class?", "options": ["#name", ".name", "*name", "name{}"], "correctIndex": 1 }
+    ]
+  },
+  {
+    "id": "javascript-essentials",
+    "title": "JavaScript Essentials",
+    "shortDescription": "Bring your pages to life — variables, control flow, functions and hands-on practice.",
+    "category": "Programming",
+    "tags": ["javascript", "logic", "interactive"],
+    "level": "Intermediate",
+    "certificationAvailable": true,
+    "whatsappGroup": "https://wa.me/910000000000?text=Hi!%20I'm%20learning%20JavaScript%20Essentials",
+    "razorpayLink": "https://razorpay.me/@dexteritylearn/javascript-essentials-certificate",
+    "modules": [
+      {
+        "id": "js-basics",
+        "title": "JS Basics",
+        "lessons": [
+          {
+            "id": "variables",
+            "title": "Variables and Data Types",
+            "content": "# Variables and Data Types\n\nVariables store values you can use and change later. Modern JavaScript uses `let` and `const`.\n\n```js\nlet age = 21;\nconst name = \"Priya\";\nlet isStudent = true;\n```\n\nThe core primitive types are **String**, **Number**, **Boolean**, **undefined**, and **null**.\n\n:::tip\nUse `const` by default, and only switch to `let` when you know a variable's value needs to change.\n:::\n\n:::try\n```js\nlet name = \"Priya\";\nlet age = 21;\nconsole.log(\"Name:\", name);\nconsole.log(\"Age:\", age);\n```\n:::"
+          },
+          {
+            "id": "operators",
+            "title": "Operators",
+            "content": "# Operators\n\n```js\nlet sum = 4 + 5;        // arithmetic\nlet isEqual = (4 === 4); // strict equality\nlet isBig = (10 > 5);    // comparison\n```\n\n:::tip\nAlways use `===` (strict equality) instead of `==` to avoid unexpected type coercion bugs.\n:::\n\n:::try\n```js\nconsole.log(2 + 3 * 4);\nconsole.log(10 % 3);\nconsole.log(5 === \"5\");\nconsole.log(5 === 5);\n```\n:::"
+          }
+        ]
+      },
+      {
+        "id": "control-flow",
+        "title": "Control Flow",
+        "lessons": [
+          {
+            "id": "conditionals",
+            "title": "Conditionals",
+            "content": "# Conditionals\n\n```js\nlet score = 82;\n\nif (score >= 90) {\n  console.log(\"Grade: A\");\n} else if (score >= 75) {\n  console.log(\"Grade: B\");\n} else {\n  console.log(\"Grade: C\");\n}\n```\n\n:::try\n```js\nlet score = 82;\nif (score >= 90) {\n  console.log(\"Grade: A\");\n} else if (score >= 75) {\n  console.log(\"Grade: B\");\n} else {\n  console.log(\"Grade: C\");\n}\n```\n:::"
+          },
+          {
+            "id": "loops",
+            "title": "Loops",
+            "content": "# Loops\n\n```js\nfor (let i = 1; i <= 5; i++) {\n  console.log(\"Count:\", i);\n}\n```\n\nA `while` loop runs as long as its condition stays true:\n\n```js\nlet n = 3;\nwhile (n > 0) {\n  console.log(n);\n  n--;\n}\n```\n\n:::try\n```js\nfor (let i = 1; i <= 5; i++) {\n  console.log(\"Count:\", i);\n}\n```\n:::"
+          }
+        ]
+      },
+      {
+        "id": "functions",
+        "title": "Functions",
+        "lessons": [
+          {
+            "id": "writing-functions",
+            "title": "Writing Functions",
+            "content": "# Writing Functions\n\nA function packages up reusable logic.\n\n```js\nfunction greet(name) {\n  return \"Hello, \" + name + \"!\";\n}\n\nconsole.log(greet(\"Dexterity\"));\n```\n\nArrow functions are a shorter, modern syntax:\n\n```js\nconst add = (a, b) => a + b;\n```\n\n:::try\n```js\nfunction greet(name) {\n  return \"Hello, \" + name + \"!\";\n}\nconsole.log(greet(\"Dexterity\"));\n```\n:::"
+          },
+          {
+            "id": "fizzbuzz",
+            "title": "Try It Yourself: FizzBuzz",
+            "content": "# Try It Yourself: FizzBuzz\n\nA classic practice problem: print numbers 1 to 15, but for multiples of 3 print \"Fizz\", multiples of 5 print \"Buzz\", and multiples of both print \"FizzBuzz\".\n\n:::try\n```js\nfor (let i = 1; i <= 15; i++) {\n  if (i % 15 === 0) console.log(\"FizzBuzz\");\n  else if (i % 3 === 0) console.log(\"Fizz\");\n  else if (i % 5 === 0) console.log(\"Buzz\");\n  else console.log(i);\n}\n```\n:::\n\nTry changing the range or the rules once it works — then mark this lesson complete to finish the course."
+          }
+        ]
+      }
+    ],
+    "quiz": [
+      { "question": "Which keyword declares a variable that cannot be reassigned?", "options": ["let", "var", "const", "static"], "correctIndex": 2 },
+      { "question": "What does === check that == does not?", "options": ["Variable name", "Value type as well as value", "Scope", "Memory address"], "correctIndex": 1 },
+      { "question": "Which loop is best when the number of iterations is known ahead of time?", "options": ["while", "for", "do...while", "forever"], "correctIndex": 1 },
+      { "question": "What does a function's return statement do?", "options": ["Stops the whole program", "Sends a value back to the caller", "Loops the function again", "Deletes the function"], "correctIndex": 1 },
+      { "question": "What is the arrow function shorthand for function(a,b){return a+b;}?", "options": ["(a,b) => a+b", "a,b -> a+b", "func(a,b): a+b", "=> (a,b) a+b"], "correctIndex": 0 }
+    ]
+  },
+  {
+    "id": "python-for-beginners",
+    "title": "Python for Beginners",
+    "shortDescription": "A gentle, practical introduction to Python syntax, variables and control flow.",
+    "category": "Programming",
+    "tags": ["python", "beginner-friendly", "logic"],
+    "level": "Beginner",
+    "certificationAvailable": true,
+    "whatsappGroup": "https://wa.me/910000000000?text=Hi!%20I'm%20learning%20Python%20for%20Beginners",
+    "razorpayLink": "https://razorpay.me/@dexteritylearn/python-for-beginners-certificate",
+    "modules": [
+      {
+        "id": "python-basics",
+        "title": "Python Basics",
+        "lessons": [
+          {
+            "id": "intro-python",
+            "title": "Introduction to Python",
+            "content": "# Introduction to Python\n\nPython is a general-purpose language known for its clean, readable syntax — a great first language.\n\n```python\nprint(\"Hello, world!\")\n```\n\nUnlike some languages, Python uses **indentation** (spacing) instead of curly braces to mark blocks of code — so consistent indentation isn't just style, it's required.\n\n:::tip\nUse 4 spaces per indentation level. Most editors do this automatically when you press Tab in a Python file.\n:::"
+          },
+          {
+            "id": "variables-types",
+            "title": "Variables & Types",
+            "content": "# Variables & Types\n\n```python\nname = \"Priya\"\nage = 21\nis_student = True\n```\n\nPython's core types include `str`, `int`, `float`, and `bool`. You can check a variable's type with the built-in `type()` function.\n\n```python\nprint(type(age))  # <class 'int'>\n```\n\n:::example\n```python\nname = \"Priya\"\nage = 21\nprint(f\"{name} is {age} years old\")\n```\n:::"
+          }
+        ]
+      },
+      {
+        "id": "python-control-flow",
+        "title": "Control Flow",
+        "lessons": [
+          {
+            "id": "if-statements",
+            "title": "If Statements",
+            "content": "# If Statements\n\n```python\nscore = 82\n\nif score >= 90:\n    print(\"Grade: A\")\nelif score >= 75:\n    print(\"Grade: B\")\nelse:\n    print(\"Grade: C\")\n```\n\n:::tip\nNotice there are no parentheses around the condition and no curly braces — just a colon and indentation.\n:::"
+          },
+          {
+            "id": "python-loops",
+            "title": "Loops",
+            "content": "# Loops\n\n```python\nfor i in range(1, 6):\n    print(\"Count:\", i)\n```\n\n```python\nn = 3\nwhile n > 0:\n    print(n)\n    n -= 1\n```\n\n:::tip\n`range(1, 6)` produces 1 through 5 — the end value is never included.\n:::"
+          }
+        ]
+      }
+    ],
+    "quiz": [
+      { "question": "What replaces curly braces in Python to define code blocks?", "options": ["Semicolons", "Indentation", "Brackets", "Parentheses"], "correctIndex": 1 },
+      { "question": "Which function prints a variable's type?", "options": ["typeof()", "type()", "class()", "kind()"], "correctIndex": 1 },
+      { "question": "What does range(1, 6) produce?", "options": ["1 to 6 inclusive", "1 to 5", "0 to 6", "0 to 5"], "correctIndex": 1 },
+      { "question": "Which keyword starts a Python conditional branch after the first?", "options": ["elseif", "elif", "else if", "elsif"], "correctIndex": 1 }
+    ]
+  }
+]
