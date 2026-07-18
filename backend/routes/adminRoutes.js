@@ -21,6 +21,7 @@ import {
   adminCreateCategory,
   adminDeleteCategory,
 } from '../controllers/adminController.js';
+import { adminCreateCourseValidator, adminUpdateCourseValidator } from '../middleware/validationMiddleware.js';
 
 const router = express.Router();
 
@@ -37,8 +38,8 @@ router.put('/users/:id', adminUpdateUser);
 router.delete('/users/:id', adminDeleteUser);
 
 // Course management
-router.post('/courses', adminCreateCourse);
-router.put('/courses/:id', adminUpdateCourse);
+router.post('/courses', adminCreateCourseValidator, adminCreateCourse);
+router.put('/courses/:id', adminUpdateCourseValidator, adminUpdateCourse);
 router.delete('/courses/:id', adminDeleteCourse);
 
 // Lesson management

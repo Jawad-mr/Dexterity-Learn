@@ -4,11 +4,13 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-// Config & Middleware
+// Security middleware
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
+
 import connectDB from './config/db.js';
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
 
-// Route imports
 import authRoutes from './routes/authRoutes.js';
 import courseRoutes from './routes/courseRoutes.js';
 import bookRoutes from './routes/bookRoutes.js';
@@ -17,16 +19,14 @@ import adminRoutes from './routes/adminRoutes.js';
 import searchRoutes from './routes/searchRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
 
-// Resolve directory paths in ES Modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Initialize dotenv configuration
 dotenv.config();
 
 // Verify critical environment variables are present at startup
-const requiredEnvVars = ['MONGODB_URI', 'JWT_SECRET'];
-const missingEnvVars = requiredEnvVars.filter((v) => !process.env[v]);
+const requiredEnvVars = ['MONGODB_URI', 'JWT_SECRET', 'EMAIL_FROM', 'EMAIL_USER', 'EMAIL_PASS', 'EMAIL_HOST', 'CLOUDINARY_CLOUD_NAME', 'CLOUDINARY_API_KEY', 'CLOUDINARY_API_SECRET'];
+const missingEnvVars = requiredEnvVars.filter(v => !process.env[v]);
 if (missingEnvVars.length > 0) {
   console.error(`\n🚨 DEPLOYMENT WARNING: Missing required environment variables: ${missingEnvVars.join(', ')}\n`);
 }
@@ -38,6 +38,18 @@ const app = express();
 
 // Disable X-Powered-By header for security
 app.disable('x-powered-by');
+
+// Rate limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+app.use(limiter);
+
+// Helmet for security headers
+app.use(helmet());
 
 // Enable Cross-Origin Resource Sharing (Trim trailing slashes to prevent CORS mismatches)
 const rawFrontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
