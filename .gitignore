@@ -1,22 +1,36 @@
-# dependencies
-/node_modules
-/.pnp
+# Dependencies
+node_modules/
+.pnp
 .pnp.js
 
-# testing
-/coverage
+# Testing
+coverage/
 
-# production
-/dist
+# Production
+dist/
+dist-ssr/
+*.local
 
-# misc
-.DS_Store
+# Environment variables
+.env
 .env.local
+.env.*.local
 .env.development.local
 .env.test.local
 .env.production.local
 
-# npm/yarn log files
+# Logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
+
+# Editor / System files
+.DS_Store
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

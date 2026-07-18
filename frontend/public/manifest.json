@@ -1,0 +1,17 @@
+{
+  "short_name": "Dexterity",
+  "name": "Dexterity Learn",
+  "description": "Premium educational MERN app for coding and reading.",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#1a2e05",
+  "theme_color": "#a3f058",
+  "display": "standalone",
+  "orientation": "portrait"
+}

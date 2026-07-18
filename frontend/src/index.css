@@ -1,0 +1,123 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html, body {
+    @apply h-full select-none touch-pan-y;
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  /* Smooth native scroll inside pages */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+/* Glassmorphism Classes */
+.glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.dark .glass {
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Custom transitions and mobile UI enhancements */
+.nav-bottom-active {
+  @apply text-brand-500 dark:text-brand-400 !important;
+  transform: translateY(-2px);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Page slider animations */
+.page-transition {
+  animation: slideUp 0.3s ease-out forwards;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Book reading viewer blurring effect */
+.blurred-content {
+  filter: blur(12px);
+  user-select: none;
+  pointer-events: none;
+  opacity: 0.65;
+}
+
+/* Markdown typography helper */
+.prose h1, .prose h2, .prose h3 {
+  @apply font-bold tracking-tight text-slate-900 dark:text-white mt-6 mb-3;
+}
+.prose h1 { @apply text-2xl; }
+.prose h2 { @apply text-xl border-b pb-1 border-slate-200 dark:border-slate-800; }
+.prose h3 { @apply text-lg; }
+
+.prose p {
+  @apply text-slate-600 dark:text-slate-400 leading-relaxed mb-4 text-sm;
+}
+
+.prose code {
+  @apply font-mono bg-slate-100 dark:bg-slate-900 text-brand-600 dark:text-brand-400 px-1.5 py-0.5 rounded text-xs;
+}
+
+.prose ul, .prose ol {
+  @apply pl-6 mb-4 list-disc text-sm text-slate-600 dark:text-slate-400 space-y-1.5;
+}
+.prose ol { @apply list-decimal; }
+
+.prose blockquote {
+  @apply pl-4 border-l-4 border-brand-500 bg-brand-50/50 dark:bg-brand-950/20 py-2 my-4 text-slate-700 dark:text-slate-300 rounded-r text-sm italic;
+}
+
+/* Print Stylesheet for PDF/Print Certificate Isolation */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #print-certificate-area, #print-certificate-area * {
+    visibility: visible;
+  }
+  #print-certificate-area {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%) scale(1.5);
+    border: 12px double #b45309 !important;
+    background-color: #fffbeb !important;
+    color: #451a03 !important;
+    padding: 32px !important;
+    box-shadow: none !important;
+    border-radius: 24px !important;
+    width: 90% !important;
+    max-width: 600px !important;
+  }
+}
+
+/* Global Dark Mode High-Contrast Border Accentuation */
+.dark .border-slate-950,
+.dark .border-slate-900,
+.dark .border-slate-850,
+.dark .border-slate-800,
+.dark .border-black {
+  border-color: #ffffff !important;
+}
