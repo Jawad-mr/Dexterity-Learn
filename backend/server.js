@@ -24,15 +24,25 @@ const __dirname = path.dirname(__filename);
 // Initialize dotenv configuration
 dotenv.config();
 
+// Verify critical environment variables are present at startup
+const requiredEnvVars = ['MONGODB_URI', 'JWT_SECRET'];
+const missingEnvVars = requiredEnvVars.filter((v) => !process.env[v]);
+if (missingEnvVars.length > 0) {
+  console.error(`\n🚨 DEPLOYMENT WARNING: Missing required environment variables: ${missingEnvVars.join(', ')}\n`);
+}
+
 // Connect to Database
 connectDB();
 
 const app = express();
 
-// Enable Cross-Origin Resource Sharing
+// Enable Cross-Origin Resource Sharing (Trim trailing slashes to prevent CORS mismatches)
+const rawFrontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+const frontendUrl = rawFrontendUrl.endsWith('/') ? rawFrontendUrl.slice(0, -1) : rawFrontendUrl;
+
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+    origin: frontendUrl,
     credentials: true,
   })
 );
