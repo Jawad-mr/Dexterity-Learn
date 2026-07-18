@@ -1,5 +1,18 @@
 import mongoose from 'mongoose';
 
+// Set up connection event listeners for production stability monitoring
+mongoose.connection.on('disconnected', () => {
+  console.warn('⚠️ MongoDB connection lost! Retrying...');
+});
+
+mongoose.connection.on('error', (err) => {
+  console.error(`🚨 MongoDB connection error: ${err.message}`);
+});
+
+mongoose.connection.on('connected', () => {
+  console.log('💚 MongoDB connection established successfully.');
+});
+
 const connectDB = async () => {
   try {
     const conn = await mongoose.connect(process.env.MONGODB_URI);

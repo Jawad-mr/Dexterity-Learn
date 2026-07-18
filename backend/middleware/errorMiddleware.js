@@ -39,6 +39,14 @@ export const errorHandler = (err, req, res, next) => {
     message = 'Unauthorized request, web token expired.';
   }
 
+  // Handle Multer upload errors (size limit or format mismatch)
+  if (err.name === 'MulterError' || err.message.includes('Multer') || err.message.includes('Only image files')) {
+    statusCode = 400;
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      message = 'Upload failed: Image file size is too large (max limit is 5MB).';
+    }
+  }
+
   res.status(statusCode).json({
     success: false,
     message,

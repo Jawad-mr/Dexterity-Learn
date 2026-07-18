@@ -36,6 +36,9 @@ connectDB();
 
 const app = express();
 
+// Disable X-Powered-By header for security
+app.disable('x-powered-by');
+
 // Enable Cross-Origin Resource Sharing (Trim trailing slashes to prevent CORS mismatches)
 const rawFrontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
 const frontendUrl = rawFrontendUrl.endsWith('/') ? rawFrontendUrl.slice(0, -1) : rawFrontendUrl;
@@ -80,6 +83,25 @@ app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
+});
+
+// Capture unhandled promise rejections and uncaught exceptions to ensure graceful server termination
+process.on('unhandledRejection', (err) => {
+  console.error(`\n🚨 UNHANDLED REJECTION: ${err.name} - ${err.message}`);
+  if (err.stack) console.error(err.stack);
+  console.warn('Shutting down server gracefully...');
+  server.close(() => {
+    process.exit(1);
+  });
+});
+
+process.on('uncaughtException', (err) => {
+  console.error(`\n🚨 UNCAUGHT EXCEPTION: ${err.name} - ${err.message}`);
+  if (err.stack) console.error(err.stack);
+  console.warn('Shutting down server gracefully...');
+  server.close(() => {
+    process.exit(1);
+  });
 });
