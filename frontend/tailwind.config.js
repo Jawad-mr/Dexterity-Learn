@@ -26,10 +26,10 @@ export default {
         sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
       },
       boxShadow: {
-        'flat': '4px 4px 0px 0px #000000', // Solid pure black offset
-        'flat-lg': '6px 6px 0px 0px #000000',
-        'flat-sm': '2px 2px 0px 0px #000000',
-        'flat-light': '4px 4px 0px 0px #f8fafc', // Solid off-white for dark mode
+        'flat': '0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.04)',
+        'flat-lg': '0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04)',
+        'flat-sm': '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+        'flat-light': 'none',
         'soft': '0 2px 8px -2px rgba(0, 0, 0, 0.05), 0 4px 12px -1px rgba(0, 0, 0, 0.03)',
       },
       borderRadius: {

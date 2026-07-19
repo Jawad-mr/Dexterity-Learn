@@ -113,7 +113,13 @@
   }
 }
 
-/* Global Dark Mode High-Contrast Border Accentuation */
+/* Ensure borders are solid black in light mode and white in dark mode */
+.border-slate-950,
+.border-black {
+  border-color: #000000 !important;
+}
+
+/* Global Dark Mode Border Accentuation */
 .dark .border-slate-950,
 .dark .border-slate-900,
 .dark .border-slate-850,
