@@ -36,7 +36,7 @@ const seedData = async () => {
     ]);
     console.log("Categories seeded!");
 
-    // 2. Seed Users (passwords will be hashed via Schema pre-save)
+    // 2. Seed Users
     const adminPassword = await bcrypt.hash('admin123', 10);
     const userPassword = await bcrypt.hash('user123', 10);
 
@@ -44,7 +44,7 @@ const seedData = async () => {
       {
         username: 'admin',
         email: 'admin@dexteritylearn.com',
-        password: 'admin123', // Raw password (will be hashed by pre-save)
+        password: adminPassword,
         role: 'admin',
         isVerified: true,
         progress: {
@@ -56,7 +56,7 @@ const seedData = async () => {
       {
         username: 'student',
         email: 'student@dexteritylearn.com',
-        password: 'user123', // Raw password (will be hashed by pre-save)
+        password: userPassword,
         role: 'user',
         isVerified: true,
         progress: {
