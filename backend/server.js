@@ -51,13 +51,10 @@ app.use(limiter);
 // Helmet for security headers
 app.use(helmet());
 
-// Enable Cross-Origin Resource Sharing (Trim trailing slashes to prevent CORS mismatches)
-const rawFrontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-const frontendUrl = rawFrontendUrl.endsWith('/') ? rawFrontendUrl.slice(0, -1) : rawFrontendUrl;
-
+// Enable Cross-Origin Resource Sharing (dynamically mirror request origin for demo simplicity)
 app.use(
   cors({
-    origin: frontendUrl,
+    origin: true,
     credentials: true,
   })
 );
