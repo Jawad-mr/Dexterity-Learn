@@ -32,7 +32,7 @@ export default function Login() {
   return (
     <div className="min-h-screen flex flex-col lg:grid lg:grid-cols-5 bg-slate-50 dark:bg-slate-950 select-none page-transition">
       {/* Left Panel: App Showcase (Hidden on Mobile) */}
-      <div className="hidden lg:flex lg:col-span-2 bg-gradient-to-br from-red-100 via-rose-50 to-red-200 text-slate-900 flex-col justify-between p-10 relative border-r-2 border-slate-950 overflow-hidden">
+      <div className="hidden lg:flex lg:col-span-2 bg-gradient-to-br from-brand-100 via-brand-50 to-brand-200 text-slate-900 flex-col justify-between p-10 relative border-r-2 border-slate-950 overflow-hidden">
         {/* Decorative pattern */}
         <div className="absolute inset-0 opacity-[0.12] pointer-events-none bg-[radial-gradient(#000000_1.5px,transparent_1.5px)] [background-size:20px_20px]" />
         
@@ -41,7 +41,7 @@ export default function Login() {
           <div className="flex items-center gap-2">
             <img src="/logo.png" alt="logo" className="h-9 w-9 rounded-xl border-2 border-slate-950 shadow-flat-sm" />
             <span className="text-base font-black tracking-tight text-slate-955">
-              Dexterity <span className="text-rose-700">Learn</span>
+              Dexterity <span className="text-brand-600">Learn</span>
             </span>
           </div>
           <p className="text-[10px] text-slate-600 mt-1 uppercase font-black tracking-widest">Mobile-First MERN Platform</p>
