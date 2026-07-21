@@ -113,3 +113,14 @@ process.on('uncaughtException', (err) => {
     process.exit(1);
   });
 });
+
+// Keep Render free web service alive by pinging itself
+const RENDER_URL = process.env.RENDER_EXTERNAL_URL;
+if (RENDER_URL) {
+  console.log(`📡 Keep-alive registered. Self-ping targets: ${RENDER_URL}`);
+  setInterval(() => {
+    fetch(RENDER_URL)
+      .then(() => console.log('💚 Keep-alive ping sent to self successfully.'))
+      .catch((err) => console.error('⚠️ Keep-alive ping failed:', err.message));
+  }, 5 * 60 * 1000); // Self-ping every 5 minutes to prevent spindown
+}
