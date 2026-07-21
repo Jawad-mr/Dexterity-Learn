@@ -55,7 +55,7 @@ export default function CoursesCatalog() {
     setSearchParams({});
   };
 
-  const categories = ['Programming', 'Web Development', 'AI & Machine Learning', 'Interview & Career'];
+  const categories = ['AI Engineering', 'Workflow Automation', 'AI Design & Creative', 'AI Career Prep'];
   const difficulties = ['Beginner', 'Intermediate', 'Advanced'];
 
   return (

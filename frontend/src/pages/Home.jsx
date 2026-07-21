@@ -57,10 +57,10 @@ export default function Home() {
 
   // Categories list matching standard seed data
   const categories = [
-    { name: 'Programming', slug: 'programming', color: 'from-blue-500 to-indigo-600' },
-    { name: 'Web Dev', slug: 'web-development', color: 'from-teal-400 to-emerald-600' },
-    { name: 'AI & ML', slug: 'ai-machine-learning', color: 'from-purple-500 to-indigo-700' },
-    { name: 'Career Prep', slug: 'interview-career', color: 'from-orange-400 to-red-500' },
+    { name: 'AI Engineering', slug: 'ai-engineering', color: 'from-blue-500 to-indigo-600' },
+    { name: 'Workflow Automation', slug: 'workflow-automation', color: 'from-teal-400 to-emerald-600' },
+    { name: 'AI Design & Creative', slug: 'ai-design-creative', color: 'from-purple-500 to-indigo-700' },
+    { name: 'AI Career Prep', slug: 'ai-career-prep', color: 'from-orange-400 to-red-500' },
   ];
 
   // Dummy announcements if database empty or endpoint fails (since admin authentication applies to that route)

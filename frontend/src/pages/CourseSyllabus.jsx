@@ -229,7 +229,7 @@ export default function CourseSyllabus() {
               }}
               className="flex items-center justify-center gap-2 w-full bg-brand-400 hover:bg-brand-300 text-slate-950 text-xs font-black py-2.5 rounded-xl border-2 border-slate-950 shadow-flat-sm transition active:translate-y-[1px] active:shadow-none"
             >
-              <MessageCircle className="h-4 w-4 fill-slate-950" /> Claim Certificate via WhatsApp (₹{course.certificatePrice || 499})
+              <MessageCircle className="h-4 w-4 fill-slate-950" /> Claim Certificate (₹{course.certificatePrice || 499})
             </button>
           </div>
         </div>

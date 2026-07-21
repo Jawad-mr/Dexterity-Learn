@@ -721,10 +721,10 @@ export default function AdminDashboard() {
                       onChange={(e) => setCategory(e.target.value)}
                       className="w-full rounded-xl bg-slate-50 dark:bg-slate-800 py-1.5 px-2 border border-slate-250 dark:border-slate-800"
                     >
-                      <option>Programming</option>
-                      <option>Web Development</option>
-                      <option>AI & Machine Learning</option>
-                      <option>Interview & Career</option>
+                      <option>AI Engineering</option>
+                      <option>Workflow Automation</option>
+                      <option>AI Design & Creative</option>
+                      <option>AI Career Prep</option>
                     </select>
                   </div>
                   <div>
