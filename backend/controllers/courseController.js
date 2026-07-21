@@ -26,7 +26,7 @@ export const getCourses = async (req, res, next) => {
       ];
     }
 
-    const courses = await Course.find(query).sort({ createdAt: -1 });
+    const courses = await Course.find(query).sort({ createdAt: 1 });
     res.json({ success: true, courses });
   } catch (error) {
     next(error);

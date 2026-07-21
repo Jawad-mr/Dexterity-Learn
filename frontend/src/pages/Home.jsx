@@ -191,7 +191,7 @@ export default function Home() {
 
         <div className="flex gap-3 md:gap-4 overflow-x-auto no-scrollbar py-1">
           {coursesData && coursesData.length > 0 ? (
-            coursesData.slice(0, 4).map((course) => {
+            coursesData.map((course) => {
               // Find progress if enrolled
               const enrollment = user?.enrolledCourses?.find(
                 (c) => c.courseId?._id === course._id || c.courseId === course._id
@@ -271,7 +271,7 @@ export default function Home() {
 
         <div className="flex gap-3 md:gap-4 overflow-x-auto no-scrollbar py-1">
           {booksData && booksData.length > 0 ? (
-            booksData.slice(0, 4).map((book) => {
+            booksData.map((book) => {
               const isUnlocked = user?.unlockedBooks?.some((b) => b._id === book._id || b === book._id);
               return (
                 <Link
