@@ -356,3 +356,106 @@ export const adminDeleteCategory = async (req, res, next) => {
     next(error);
   }
 };
+
+// ==========================================
+// PAYMENT APPROVAL & ACCESS GRANT CONTROLLERS
+// ==========================================
+export const adminGetPendingPayments = async (req, res, next) => {
+  try {
+    const payments = await Payment.find({})
+      .populate('userId', 'username email')
+      .sort({ createdAt: -1 });
+    res.json({ success: true, payments });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const adminApprovePayment = async (req, res, next) => {
+  const { paymentId } = req.params;
+  try {
+    const payment = await Payment.findById(paymentId);
+    if (!payment) {
+      res.status(404);
+      return next(new Error('Payment log record not found'));
+    }
+
+    payment.status = 'completed';
+    payment.transactionId = `WA_ADMIN_${Date.now()}`;
+    await payment.save();
+
+    const user = await User.findById(payment.userId);
+    if (user) {
+      if (payment.productType === 'book' && payment.productId) {
+        if (!user.unlockedBooks.includes(payment.productId)) {
+          user.unlockedBooks.push(payment.productId);
+          await user.save();
+        }
+      } else if (payment.productType === 'certificate' && payment.productId) {
+        let cert = await Certificate.findOne({ userId: user._id, courseId: payment.productId });
+        if (!cert) {
+          cert = new Certificate({
+            userId: user._id,
+            courseId: payment.productId,
+            certificateId: `CERT-${Date.now()}-${Math.floor(100 + Math.random() * 900)}`,
+            isPaid: true,
+            issuedAt: Date.now(),
+          });
+        } else {
+          cert.isPaid = true;
+          cert.issuedAt = Date.now();
+        }
+        await cert.save();
+      }
+    }
+
+    res.json({ success: true, message: 'Payment approved and access granted successfully!', payment });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const adminGrantAccess = async (req, res, next) => {
+  const { userId, targetType, targetId } = req.body; // targetType: 'certificate' | 'course' | 'book'
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      res.status(404);
+      return next(new Error('User not found'));
+    }
+
+    if (targetType === 'certificate') {
+      let cert = await Certificate.findOne({ userId, courseId: targetId });
+      if (!cert) {
+        cert = new Certificate({
+          userId,
+          courseId: targetId,
+          certificateId: `CERT-ADMIN-${Date.now()}`,
+          isPaid: true,
+          issuedAt: Date.now(),
+        });
+      } else {
+        cert.isPaid = true;
+        cert.issuedAt = Date.now();
+      }
+      await cert.save();
+    } else if (targetType === 'book') {
+      if (!user.unlockedBooks.includes(targetId)) {
+        user.unlockedBooks.push(targetId);
+        await user.save();
+      }
+    } else if (targetType === 'course') {
+      const existing = user.enrolledCourses.find(c => c.courseId.toString() === targetId);
+      if (existing) {
+        existing.progress = 100;
+      } else {
+        user.enrolledCourses.push({ courseId: targetId, progress: 100, completedLessons: [] });
+      }
+      await user.save();
+    }
+
+    res.json({ success: true, message: `Granted ${targetType} access to ${user.username}` });
+  } catch (error) {
+    next(error);
+  }
+};

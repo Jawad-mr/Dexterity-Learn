@@ -5,7 +5,7 @@ const AuthContext = createContext();
 
 // Create configure axios instance
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'https://dexterity-learn.onrender.com/api',
+  baseURL: import.meta.env.VITE_API_URL || '/api',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -95,6 +95,12 @@ export const AuthProvider = ({ children }) => {
   const signup = async (username, email, password) => {
     try {
       const response = await api.post('/auth/signup', { username, email, password });
+      if (response.data.success && response.data.token) {
+        localStorage.setItem('token', response.data.token);
+        setToken(response.data.token);
+        setUser(response.data.user);
+        return { success: true };
+      }
       return { success: true, message: response.data.message };
     } catch (error) {
       return {

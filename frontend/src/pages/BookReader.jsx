@@ -223,18 +223,15 @@ export default function BookReader() {
                 </div>
               )}
 
-              {paying ? (
-                <button disabled className="flex items-center justify-center gap-2 w-full bg-slate-950 text-white text-xs font-bold py-2.5 rounded-xl border-2 border-slate-950">
-                  <Loader2 className="h-4 w-4 animate-spin" /> Verifying payment...
-                </button>
-              ) : (
-                <button
-                  onClick={() => unlockMutation.mutate()}
-                  className="flex items-center justify-center gap-2 w-full bg-brand-400 hover:bg-brand-300 text-slate-950 text-xs font-black py-2.5 rounded-xl border-2 border-slate-950 shadow-flat-sm transition active:translate-y-[1px] active:shadow-none"
-                >
-                  <CreditCard className="h-4 w-4" /> Unlock Book (₹{pageData.price || '299'})
-                </button>
-              )}
+              <button
+                onClick={() => {
+                  const pName = encodeURIComponent(bookMeta?.title || 'Tech Ebook Guide');
+                  navigate(`/payment?type=book&productId=${bookMeta?._id}&name=${pName}&price=${pageData.price || 299}`);
+                }}
+                className="flex items-center justify-center gap-2 w-full bg-brand-400 hover:bg-brand-300 text-slate-950 text-xs font-black py-2.5 rounded-xl border-2 border-slate-950 shadow-flat-sm transition active:translate-y-[1px] active:shadow-none"
+              >
+                <CreditCard className="h-4 w-4" /> Unlock Book via WhatsApp (₹{pageData.price || '299'})
+              </button>
             </div>
           </div>
         ) : null}

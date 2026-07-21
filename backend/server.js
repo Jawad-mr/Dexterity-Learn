@@ -4,7 +4,6 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-// Security middleware
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 
@@ -25,7 +24,7 @@ const __dirname = path.dirname(__filename);
 dotenv.config();
 
 // Verify critical environment variables are present at startup
-const requiredEnvVars = ['MONGODB_URI', 'JWT_SECRET', 'EMAIL_FROM', 'EMAIL_USER', 'EMAIL_PASS', 'EMAIL_HOST', 'CLOUDINARY_CLOUD_NAME', 'CLOUDINARY_API_KEY', 'CLOUDINARY_API_SECRET'];
+const requiredEnvVars = ['MONGODB_URI', 'JWT_SECRET'];
 const missingEnvVars = requiredEnvVars.filter(v => !process.env[v]);
 if (missingEnvVars.length > 0) {
   console.error(`\n🚨 DEPLOYMENT WARNING: Missing required environment variables: ${missingEnvVars.join(', ')}\n`);

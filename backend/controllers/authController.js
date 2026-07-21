@@ -33,39 +33,30 @@ export const signup = async (req, res, next) => {
       return next(new Error('User already exists with this email or username'));
     }
 
-    // Generate email verification token
-    const verificationToken = crypto.randomBytes(32).toString('hex');
-    const verificationTokenExpires = Date.now() + 24 * 3600 * 1000; // 24 hours
-
     const user = await User.create({
       username,
       email,
       password,
-      verificationToken,
-      verificationTokenExpires,
+      isVerified: true,
+      progress: {
+        xp: 100,
+        streak: 1,
+        badges: ['Code Novice'],
+      },
     });
 
     if (user) {
-      // Send verification email
-      const verificationUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/#/verify-email?token=${verificationToken}`;
-      const emailText = `Welcome to Dexterity Learn, ${username}!\n\nPlease verify your email by clicking: ${verificationUrl}`;
-      const emailHtml = `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 10px;">
-          <h2 style="color: #0d9488; text-align: center;">Welcome to Dexterity Learn!</h2>
-          <p>Hi ${username},</p>
-          <p>Thank you for signing up. Please verify your email address to unlock your account and start coding.</p>
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${verificationUrl}" style="background-color: #0d9488; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">Verify Email</a>
-          </div>
-          <p style="color: #666; font-size: 12px; text-align: center;">If you did not request this email, please ignore it.</p>
-        </div>
-      `;
-
-      await sendEmailHelper(email, 'Verify Your Email — Dexterity Learn', emailText, emailHtml);
-
       res.status(201).json({
         success: true,
-        message: 'Registration successful! Please check your email to verify your account.',
+        token: generateToken(user._id),
+        user: {
+          _id: user._id,
+          username: user.username,
+          email: user.email,
+          role: user.role,
+          profileImage: user.profileImage,
+          progress: user.progress,
+        },
       });
     } else {
       res.status(400);
@@ -80,36 +71,10 @@ export const signup = async (req, res, next) => {
 // @route   POST /api/auth/verify-email
 // @access  Public
 export const verifyEmail = async (req, res, next) => {
-  const { token } = req.body;
-
-  try {
-    const user = await User.findOne({
-      verificationToken: token,
-      verificationTokenExpires: { $gt: Date.now() },
-    });
-
-    if (!user) {
-      res.status(400);
-      return next(new Error('Invalid or expired verification token'));
-    }
-
-    user.isVerified = true;
-    user.verificationToken = undefined;
-    user.verificationTokenExpires = undefined;
-
-    // Grant starting XP and badge for signing up
-    user.progress.xp += 100;
-    user.progress.badges.push('Code Novice');
-
-    await user.save();
-
-    res.status(200).json({
-      success: true,
-      message: 'Email verified successfully! You can now log in.',
-    });
-  } catch (error) {
-    next(error);
-  }
+  res.status(200).json({
+    success: true,
+    message: 'Email verification is auto-approved.',
+  });
 };
 
 // @desc    Login user & get token
@@ -125,12 +90,6 @@ export const login = async (req, res, next) => {
     if (!user || !(await user.comparePassword(password))) {
       res.status(401);
       return next(new Error('Invalid email or password'));
-    }
-
-    // Check if verified
-    if (!user.isVerified) {
-      res.status(403);
-      return next(new Error('Please verify your email address before logging in.'));
     }
 
     // Calculate daily streak

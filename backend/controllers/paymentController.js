@@ -9,11 +9,11 @@ import crypto from 'crypto';
 // @route   POST /api/payments/create-order
 // @access  Private
 export const createOrder = async (req, res, next) => {
-  const { productType, productId } = req.body; // productType: 'book' | 'certificate'
+  const { productType, productId, amount: reqAmount, originalAmount, promoCode, customerName, customerEmail, customerPhone } = req.body;
   const userId = req.user._id;
 
   try {
-    let amount = 0;
+    let amount = reqAmount || 0;
     let name = '';
 
     if (productType === 'book') {
@@ -22,39 +22,20 @@ export const createOrder = async (req, res, next) => {
         res.status(404);
         return next(new Error('Book not found'));
       }
-      amount = book.price;
       name = book.title;
-
-      // Check if user already unlocked this book
-      if (req.user.unlockedBooks.includes(productId)) {
-        res.status(400);
-        return next(new Error('You have already unlocked this book.'));
-      }
     } else if (productType === 'certificate') {
-      const course = await Course.findById(productId);
-      if (!course) {
-        res.status(404);
-        return next(new Error('Course not found'));
+      if (productId) {
+        const course = await Course.findById(productId);
+        if (course) {
+          name = `${course.title} Certificate`;
+        } else {
+          name = 'Verified Certificate';
+        }
+      } else {
+        name = 'Verified Certificate';
       }
-      amount = course.certificatePrice || 499;
-      name = `${course.title} Certificate`;
-
-      // Check completion status
-      const user = await User.findById(userId);
-      const enrollment = user.enrolledCourses.find(
-        (c) => c.courseId.toString() === productId.toString()
-      );
-      if (!enrollment || enrollment.progress < 100) {
-        res.status(400);
-        return next(new Error('Course completion is not 100%. Please finish all lessons first.'));
-      }
-
-      // Check if certificate already paid
-      const certPaid = await Certificate.findOne({ userId, courseId: productId, isPaid: true });
-      if (certPaid) {
-        res.status(400);
-        return next(new Error('You already purchased this certificate.'));
-      }
+    } else if (productType === 'coffee') {
+      name = 'Buy Me a Coffee Support';
     } else {
       res.status(400);
       return next(new Error('Invalid product type'));
@@ -67,8 +48,13 @@ export const createOrder = async (req, res, next) => {
     const payment = await Payment.create({
       userId,
       productType,
-      productId,
-      amount,
+      productId: productId || undefined,
+      amount: amount >= 0 ? amount : 0,
+      originalAmount: originalAmount || amount,
+      promoCode: promoCode || '',
+      customerName: customerName || req.user.username,
+      customerEmail: customerEmail || req.user.email,
+      customerPhone: customerPhone || '',
       currency: 'INR',
       status: 'pending',
       invoiceNumber,

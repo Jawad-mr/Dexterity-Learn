@@ -10,18 +10,28 @@ const paymentSchema = new mongoose.Schema(
     },
     productType: {
       type: String,
-      enum: ['certificate', 'book'],
+      enum: ['certificate', 'book', 'coffee'],
       required: true,
     },
     productId: {
       type: mongoose.Schema.Types.ObjectId,
-      required: true,
-      // Ref is dynamic (can be Course or Book)
+      required: false,
     },
     amount: {
       type: Number,
       required: true,
     },
+    originalAmount: {
+      type: Number,
+      default: 0,
+    },
+    promoCode: {
+      type: String,
+      default: '',
+    },
+    customerName: String,
+    customerEmail: String,
+    customerPhone: String,
     currency: {
       type: String,
       default: 'INR',

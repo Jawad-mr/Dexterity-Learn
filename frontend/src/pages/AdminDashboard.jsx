@@ -77,6 +77,54 @@ export default function AdminDashboard() {
     enabled: currentSection === 'announcements',
   });
 
+  // 6. Fetch Payments / Access Requests
+  const { data: payments, isLoading: paymentsLoading } = useQuery({
+    queryKey: ['admin-payments'],
+    queryFn: () => api.get('/admin/payments').then((res) => res.data.payments).catch(() => []),
+    enabled: currentSection === 'payments',
+  });
+
+  // Manual Grant State
+  const [grantUserId, setGrantUserId] = useState('');
+  const [grantTargetType, setGrantTargetType] = useState('certificate'); // certificate, course, book
+  const [grantTargetId, setGrantTargetId] = useState('');
+  const [grantStatusMsg, setGrantStatusMsg] = useState('');
+  const [grantLoading, setGrantLoading] = useState(false);
+
+  const handleGrantAccess = async (e) => {
+    e.preventDefault();
+    setGrantStatusMsg('');
+    if (!grantUserId || !grantTargetId) {
+      setGrantStatusMsg('Please select a user and provide a target ID.');
+      return;
+    }
+    setGrantLoading(true);
+    try {
+      const res = await api.post('/admin/grant-access', {
+        userId: grantUserId,
+        targetType: grantTargetType,
+        targetId: grantTargetId,
+      });
+      setGrantStatusMsg(res.data.message || 'Access granted successfully!');
+      queryClient.invalidateQueries(['admin-users']);
+      queryClient.invalidateQueries(['admin-payments']);
+    } catch (err) {
+      setGrantStatusMsg(err.response?.data?.message || 'Failed to grant access');
+    } finally {
+      setGrantLoading(false);
+    }
+  };
+
+  const handleApprovePayment = async (paymentId) => {
+    try {
+      await api.post(`/admin/payments/approve/${paymentId}`);
+      queryClient.invalidateQueries(['admin-payments']);
+      queryClient.invalidateQueries(['admin-stats']);
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to approve payment');
+    }
+  };
+
   // ==========================================
   // MUTATIONS (CRUD OPERATIONS)
   // ==========================================
@@ -222,6 +270,7 @@ export default function AdminDashboard() {
       <div className="flex gap-1 overflow-x-auto no-scrollbar border-b border-slate-200 dark:border-slate-800">
         {[
           { id: 'analytics', label: 'Overview' },
+          { id: 'payments', label: 'Payments & Access' },
           { id: 'users', label: 'Users' },
           { id: 'courses', label: 'Courses' },
           { id: 'books', label: 'Ebooks' },
@@ -240,6 +289,138 @@ export default function AdminDashboard() {
           </button>
         ))}
       </div>
+
+      {/* SECTION: Payments & Access Grants */}
+      {currentSection === 'payments' && (
+        <div className="space-y-6">
+          {/* Manual Access Grant Box */}
+          <div className="bg-white dark:bg-slate-900 border-2 border-slate-950 rounded-3xl p-5 shadow-flat">
+            <h3 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider mb-3 flex items-center gap-2">
+              <Award className="h-4 w-4 text-emerald-500" /> Manual User Access Grant
+            </h3>
+
+            {grantStatusMsg && (
+              <div className="mb-3 p-2.5 rounded-xl bg-emerald-50 border border-emerald-300 text-xs font-bold text-emerald-700">
+                {grantStatusMsg}
+              </div>
+            )}
+
+            <form onSubmit={handleGrantAccess} className="grid grid-cols-1 md:grid-cols-4 gap-3">
+              <div>
+                <label className="text-[10px] font-bold text-slate-400 uppercase block mb-1">Target User ID</label>
+                <input
+                  type="text"
+                  placeholder="User ID (e.g. 60f...)"
+                  value={grantUserId}
+                  onChange={(e) => setGrantUserId(e.target.value)}
+                  className="w-full rounded-xl bg-slate-50 dark:bg-slate-800 p-2 text-xs border-2 border-slate-950 font-mono text-slate-900 dark:text-white"
+                />
+              </div>
+
+              <div>
+                <label className="text-[10px] font-bold text-slate-400 uppercase block mb-1">Grant Type</label>
+                <select
+                  value={grantTargetType}
+                  onChange={(e) => setGrantTargetType(e.target.value)}
+                  className="w-full rounded-xl bg-slate-50 dark:bg-slate-800 p-2 text-xs border-2 border-slate-950 font-bold text-slate-900 dark:text-white"
+                >
+                  <option value="certificate">Certificate Access</option>
+                  <option value="course">Complete Course (100%)</option>
+                  <option value="book">Unlock Ebook</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-[10px] font-bold text-slate-400 uppercase block mb-1">Course / Book ID</label>
+                <input
+                  type="text"
+                  placeholder="Course or Book Object ID"
+                  value={grantTargetId}
+                  onChange={(e) => setGrantTargetId(e.target.value)}
+                  className="w-full rounded-xl bg-slate-50 dark:bg-slate-800 p-2 text-xs border-2 border-slate-950 font-mono text-slate-900 dark:text-white"
+                />
+              </div>
+
+              <div className="flex items-end">
+                <button
+                  type="submit"
+                  disabled={grantLoading}
+                  className="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black py-2.5 rounded-xl border-2 border-slate-950 shadow-flat-sm text-xs transition"
+                >
+                  {grantLoading ? 'Granting...' : 'Grant Access Now'}
+                </button>
+              </div>
+            </form>
+          </div>
+
+          {/* WhatsApp Payment Requests Table */}
+          <div className="bg-white dark:bg-slate-900 border-2 border-slate-950 rounded-3xl overflow-hidden shadow-flat">
+            <div className="p-4 bg-slate-50 dark:bg-slate-850 border-b-2 border-slate-950 flex justify-between items-center">
+              <h3 className="text-xs font-black uppercase text-slate-900 dark:text-white tracking-wider">
+                WhatsApp Payment & Access Logs
+              </h3>
+              <span className="text-[10px] font-bold bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full border border-blue-300">
+                {payments?.length || 0} Orders
+              </span>
+            </div>
+
+            {paymentsLoading ? (
+              <div className="py-8 text-center"><Loader2 className="h-5 w-5 text-red-500 animate-spin mx-auto" /></div>
+            ) : (
+              <div className="overflow-x-auto no-scrollbar">
+                <table className="w-full text-[10px] text-slate-700 dark:text-slate-200">
+                  <thead className="bg-slate-100 dark:bg-slate-800 font-bold border-b border-slate-200 dark:border-slate-800 text-slate-500 uppercase">
+                    <tr>
+                      <th className="p-3 text-left">Invoice</th>
+                      <th className="p-3 text-left">Customer</th>
+                      <th className="p-3 text-left">Product</th>
+                      <th className="p-3 text-left">Promo</th>
+                      <th className="p-3 text-left">Amount</th>
+                      <th className="p-3 text-left">Status</th>
+                      <th className="p-3 text-right">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                    {payments?.map((pmt) => (
+                      <tr key={pmt._id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                        <td className="p-3 font-mono font-bold">{pmt.invoiceNumber || pmt._id.substring(0, 8)}</td>
+                        <td className="p-3">
+                          <div className="font-bold text-slate-900 dark:text-white">{pmt.customerName || pmt.userId?.username || 'User'}</div>
+                          <div className="text-[9px] text-slate-400">{pmt.customerPhone || pmt.customerEmail}</div>
+                        </td>
+                        <td className="p-3 font-bold uppercase">{pmt.productType}</td>
+                        <td className="p-3 font-mono text-emerald-600 font-bold">{pmt.promoCode || '—'}</td>
+                        <td className="p-3 font-bold">₹{pmt.amount}</td>
+                        <td className="p-3">
+                          <span className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase border ${
+                            pmt.status === 'completed'
+                              ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
+                              : 'bg-amber-100 text-amber-800 border-amber-300'
+                          }`}>
+                            {pmt.status}
+                          </span>
+                        </td>
+                        <td className="p-3 text-right">
+                          {pmt.status !== 'completed' ? (
+                            <button
+                              onClick={() => handleApprovePayment(pmt._id)}
+                              className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black px-2.5 py-1 rounded-lg border border-slate-950 shadow-flat-sm text-[9px] transition"
+                            >
+                              Approve Access
+                            </button>
+                          ) : (
+                            <span className="text-[9px] font-bold text-slate-400">Approved</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* SECTION 1: Analytics summary lists */}
       {currentSection === 'analytics' && (

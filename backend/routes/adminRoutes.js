@@ -20,6 +20,9 @@ import {
   adminDeleteAnnouncement,
   adminCreateCategory,
   adminDeleteCategory,
+  adminGetPendingPayments,
+  adminApprovePayment,
+  adminGrantAccess,
 } from '../controllers/adminController.js';
 import { adminCreateCourseValidator, adminUpdateCourseValidator } from '../middleware/validationMiddleware.js';
 
@@ -31,6 +34,11 @@ router.use(admin);
 
 // Dashboard metrics
 router.get('/stats', getAdminStats);
+
+// Payments & Access Grants
+router.get('/payments', adminGetPendingPayments);
+router.post('/payments/approve/:paymentId', adminApprovePayment);
+router.post('/grant-access', adminGrantAccess);
 
 // User management
 router.get('/users', adminGetUsers);

@@ -4,6 +4,8 @@ import { Bell, Search, User, Sun, Moon, LogOut, X, BookOpen, GraduationCap, Chec
 import { useAuth, api } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 
+import BuyCoffeeButton from './BuyCoffeeButton';
+
 export default function TopNav() {
   const { user, logout } = useAuth();
   const { darkMode, toggleTheme } = useTheme();
@@ -213,8 +215,10 @@ export default function TopNav() {
           )}
         </div>
 
-        {/* Right: Actions (Theme, Notifications, Dashboard Profile) */}
-        <div className="flex items-center gap-1">
+        {/* Right: Actions (Theme, Buy Coffee, Notifications, Dashboard Profile) */}
+        <div className="flex items-center gap-1.5">
+          <BuyCoffeeButton />
+
           {/* Light/Dark Toggle */}
           <button
             onClick={toggleTheme}

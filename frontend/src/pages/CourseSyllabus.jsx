@@ -208,45 +208,31 @@ export default function CourseSyllabus() {
         )}
 
         {/* Certificate Claim Checkout Spot */}
-        {isCompleted && (
-          <div className="bg-gradient-to-r from-brand-300 to-brand-400 text-slate-900 rounded-3xl p-5 border-2 border-slate-950 shadow-flat-lg space-y-4">
-            <div className="flex items-start gap-3">
-              <div className="h-10 w-10 bg-slate-950 text-brand-400 rounded-xl flex items-center justify-center shrink-0 border-2 border-slate-950 shadow-flat-sm">
-                <Sparkles className="h-5 w-5" />
-              </div>
-              <div>
-                <h3 className="text-sm font-black">Syllabus Complete!</h3>
-                <p className="text-[11px] font-medium text-slate-850">
-                  You read all chapters and cleared lessons. Get your verified certificate of completion now.
-                </p>
-              </div>
+        <div className="bg-gradient-to-r from-brand-300 to-brand-400 text-slate-900 rounded-3xl p-5 border-2 border-slate-950 shadow-flat-lg space-y-4">
+          <div className="flex items-start gap-3">
+            <div className="h-10 w-10 bg-slate-950 text-brand-400 rounded-xl flex items-center justify-center shrink-0 border-2 border-slate-950 shadow-flat-sm">
+              <Sparkles className="h-5 w-5" />
             </div>
-
-            {/* Payment callback alert */}
-            {paySuccessMsg && (
-              <div className="flex items-center gap-2 rounded-xl bg-emerald-50 border-2 border-emerald-950 p-3 text-xs font-bold text-emerald-800">
-                <CheckCircle className="h-4 w-4 shrink-0" />
-                <span>{paySuccessMsg}</span>
-              </div>
-            )}
-
-            {/* Certificate Action State */}
-            <div className="pt-2">
-              {paying ? (
-                <button disabled className="flex items-center justify-center gap-2 w-full bg-slate-950 text-white text-xs font-bold py-2.5 rounded-xl border-2 border-slate-950">
-                  <Loader2 className="h-4 w-4 animate-spin" /> Verifying Order...
-                </button>
-              ) : (
-                <button
-                  onClick={() => checkoutMutation.mutate(course._id)}
-                  className="flex items-center justify-center gap-2 w-full bg-slate-950 hover:bg-slate-900 text-brand-400 hover:text-brand-300 text-xs font-black py-2.5 rounded-xl border-2 border-slate-950 shadow-flat-sm transition active:translate-y-[1px] active:shadow-none"
-                >
-                  <CreditCard className="h-4 w-4" /> Claim Certificate (₹499)
-                </button>
-              )}
+            <div>
+              <h3 className="text-sm font-black">100% Free Course Learning</h3>
+              <p className="text-[11px] font-medium text-slate-850">
+                All lessons & quizzes are free! Upgrade anytime to get your official verifiable certificate.
+              </p>
             </div>
           </div>
-        )}
+
+          <div className="pt-1">
+            <button
+              onClick={() => {
+                const pName = encodeURIComponent(`${course.title} Certificate`);
+                navigate(`/payment?type=certificate&productId=${course._id}&name=${pName}&price=${course.certificatePrice || 499}`);
+              }}
+              className="flex items-center justify-center gap-2 w-full bg-slate-950 hover:bg-slate-900 text-brand-400 hover:text-brand-300 text-xs font-black py-2.5 rounded-xl border-2 border-slate-950 shadow-flat-sm transition active:translate-y-[1px] active:shadow-none"
+            >
+              <CreditCard className="h-4 w-4" /> Claim Certificate via WhatsApp (₹{course.certificatePrice || 499})
+            </button>
+          </div>
+        </div>
       </div>
 
     </div>

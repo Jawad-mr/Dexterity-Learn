@@ -107,28 +107,7 @@ export default function Login() {
             <p className="text-xs text-slate-500 mt-1 font-semibold">Sign in to your Dexterity Learn account.</p>
           </div>
 
-          {/* Quick Demo Login Credentials Panel */}
-          <div className="bg-amber-50 dark:bg-amber-950/20 border-2 border-slate-950 rounded-2xl p-3.5 shadow-flat-sm space-y-2">
-            <span className="text-[9px] font-black uppercase tracking-wider text-amber-700 dark:text-amber-500 block">⚡ Quick Demo Logins</span>
-            <div className="space-y-1.5 text-[10px] font-bold text-slate-700 dark:text-slate-350">
-              <button 
-                type="button"
-                onClick={() => { setEmail('admin@dexteritylearn.com'); setPassword('admin123'); }}
-                className="flex items-center justify-between w-full hover:bg-amber-100/50 p-1 rounded transition text-left"
-              >
-                <span>Arjun Sharma <span className="text-[7.5px] font-black bg-red-100 text-red-700 px-1 py-0.5 rounded border border-red-200 ml-1">ADMIN</span></span>
-                <span className="font-mono text-[9px] text-slate-500 truncate">admin@dexteritylearn.com / admin123</span>
-              </button>
-              <button 
-                type="button"
-                onClick={() => { setEmail('student@dexteritylearn.com'); setPassword('user123'); }}
-                className="flex items-center justify-between w-full hover:bg-amber-100/50 p-1 rounded transition text-left"
-              >
-                <span>Priya Menon <span className="text-[7.5px] font-black bg-emerald-100 text-emerald-700 px-1 py-0.5 rounded border border-emerald-200 ml-1">STUDENT</span></span>
-                <span className="font-mono text-[9px] text-slate-500 truncate">student@dexteritylearn.com / user123</span>
-              </button>
-            </div>
-          </div>
+
 
           {error && (
             <div className="mb-4 flex items-center gap-2 rounded-xl bg-red-50 dark:bg-red-950/20 border-2 border-slate-950 p-3 text-xs font-bold text-red-600 dark:text-red-400">

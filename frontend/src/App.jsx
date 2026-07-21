@@ -21,6 +21,7 @@ import LessonReader from './pages/LessonReader';
 import BooksCatalog from './pages/BooksCatalog';
 import BookReader from './pages/BookReader';
 import Dashboard from './pages/Dashboard';
+import PaymentPage from './pages/PaymentPage';
 
 // Admin Vault Pages
 import AdminGate from './pages/AdminGate';
@@ -59,8 +60,9 @@ export default function App() {
             <Route path="books" element={<BooksCatalog />} />
             <Route path="books/:slug" element={<BookReader />} />
             
-            {/* Profile Dashboard */}
+            {/* Profile Dashboard & Payments */}
             <Route path="profile" element={<Dashboard />} />
+            <Route path="payment" element={<PaymentPage />} />
             
             {/* Authentications */}
             <Route path="login" element={<Login />} />

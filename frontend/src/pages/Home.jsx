@@ -5,6 +5,8 @@ import { BookOpen, GraduationCap, ChevronRight, Award, Compass, Play, BookOpenCh
 import { api, useAuth } from '../context/AuthContext';
 import useSEO from '../hooks/useSEO';
 
+import RazorpayModal from '../components/RazorpayModal';
+
 const colors = ['#a3f058', '#fcd34d', '#c084fc', '#f472b6', '#fbbf24', '#facc15', '#fb7185', '#a78bfa'];
 const getBookColor = (id) => {
   if (!id) return '#a3f058';
@@ -19,6 +21,20 @@ export default function Home() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [activeAnnouncement, setActiveAnnouncement] = useState(0);
+
+  // Razorpay Checkout State
+  const [isRazorpayOpen, setIsRazorpayOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState({
+    type: 'certificate',
+    name: 'Verified Full-Stack Web Developer Certificate',
+    price: 499,
+  });
+
+  const handleClaimCertificate = (name, price) => {
+    const pName = encodeURIComponent(name || 'Verified Software Engineer Certificate');
+    const pPrice = price || 499;
+    navigate(`/payment?type=certificate&name=${pName}&price=${pPrice}`);
+  };
 
   useSEO('Home - Free Mobile-First Coding Tutorials', 'Learn web development, programming languages, and career skills on a mobile-first premium learning interface.');
 
@@ -315,6 +331,61 @@ export default function Home() {
             // Skeleton loaders
             [1, 2, 3].map((i) => (
               <div key={i} className="w-28 h-40 rounded-2xl bg-white dark:bg-slate-900 border-2 border-slate-950 dark:border-slate-800 animate-pulse shrink-0" />
+            ))
+          )}
+        </div>
+      </div>
+
+      {/* 4. Earn Verified Certificates Section */}
+      <div className="bg-gradient-to-br from-amber-500/10 via-brand-500/10 to-emerald-500/10 border-2 border-slate-950 dark:border-slate-800 rounded-3xl p-5 shadow-flat space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <span className="text-[9px] font-black uppercase tracking-widest bg-amber-400 text-slate-950 px-2 py-0.5 rounded-full border border-slate-950">
+              Verified Credentials
+            </span>
+            <h2 className="text-base font-black text-slate-900 dark:text-white mt-1 flex items-center gap-1.5">
+              <Award className="h-5 w-5 text-amber-500" /> Earn Verified Certificates
+            </h2>
+            <p className="text-xs text-slate-600 dark:text-slate-300 font-medium">
+              Learning is 100% free! Claim an official gold certificate upon completion.
+            </p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          {coursesData && coursesData.length > 0 ? (
+            coursesData.slice(0, 3).map((course) => (
+              <div key={course._id} className="bg-white dark:bg-slate-900 border-2 border-slate-950 rounded-2xl p-3.5 shadow-flat-sm flex flex-col justify-between space-y-3">
+                <div>
+                  <div className="flex justify-between items-start">
+                    <span className="text-[14px]">🏆</span>
+                    <span className="text-[8px] font-black bg-brand-100 text-brand-800 border border-brand-300 px-1.5 py-0.5 rounded uppercase">
+                      {course.category || 'Course'}
+                    </span>
+                  </div>
+                  <h4 className="text-xs font-black text-slate-900 dark:text-white mt-2 leading-tight">{course.title}</h4>
+                  <p className="text-[9.5px] text-slate-500 font-semibold mt-1 line-clamp-2">{course.shortDescription || course.description}</p>
+                </div>
+
+                <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                  <div>
+                    <span className="text-xs font-black text-emerald-600 dark:text-emerald-400">₹{course.certificatePrice || 499}</span>
+                  </div>
+                  <button
+                    onClick={() => {
+                      const pName = encodeURIComponent(`${course.title} Certificate`);
+                      navigate(`/payment?type=certificate&productId=${course._id}&name=${pName}&price=${course.certificatePrice || 499}`);
+                    }}
+                    className="bg-brand-400 hover:bg-brand-300 text-slate-950 text-[10px] font-black px-3 py-1.5 rounded-xl border border-slate-950 shadow-flat-sm transition active:translate-y-0.5"
+                  >
+                    Get Certificate
+                  </button>
+                </div>
+              </div>
+            ))
+          ) : (
+            [1, 2, 3].map((i) => (
+              <div key={i} className="h-32 bg-slate-100 dark:bg-slate-800 rounded-2xl animate-pulse" />
             ))
           )}
         </div>

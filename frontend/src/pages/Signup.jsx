@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { User, Mail, Lock, UserPlus, AlertCircle, CheckCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export default function Signup() {
   const { signup } = useAuth();
+  const navigate = useNavigate();
   
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
@@ -12,22 +13,17 @@ export default function Signup() {
   
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [successMsg, setSuccessMsg] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    setSuccessMsg('');
     setLoading(true);
 
     const result = await signup(username, email, password);
     setLoading(false);
 
     if (result.success) {
-      setSuccessMsg(result.message || 'Registration successful! Check your email for verification.');
-      setUsername('');
-      setEmail('');
-      setPassword('');
+      navigate('/profile');
     } else {
       setError(result.message);
     }
