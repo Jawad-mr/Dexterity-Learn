@@ -7,6 +7,7 @@ import Certificate from '../models/Certificate.js';
 import Announcement from '../models/Announcement.js';
 import Category from '../models/Category.js';
 import Lesson from '../models/Lesson.js';
+import Notification from '../models/Notification.js';
 
 // @desc    Get dashboard metrics & analytics charts
 // @route   GET /api/admin/stats
@@ -393,11 +394,15 @@ export const adminApprovePayment = async (req, res, next) => {
           await user.save();
         }
       } else if (payment.productType === 'certificate' && payment.productId) {
+        const course = await Course.findById(payment.productId);
+        const courseTitle = course ? course.title : 'Verified Certificate';
         let cert = await Certificate.findOne({ userId: user._id, courseId: payment.productId });
         if (!cert) {
           cert = new Certificate({
             userId: user._id,
             courseId: payment.productId,
+            userName: user.username,
+            courseTitle: courseTitle,
             certificateId: `CERT-${Date.now()}-${Math.floor(100 + Math.random() * 900)}`,
             isPaid: true,
             issuedAt: Date.now(),
@@ -407,6 +412,14 @@ export const adminApprovePayment = async (req, res, next) => {
           cert.issuedAt = Date.now();
         }
         await cert.save();
+
+        // Create success notification for user
+        await Notification.create({
+          userId: user._id,
+          title: 'Certificate Unlocked! 🎓',
+          content: `Your verified certificate for "${courseTitle}" is now unlocked! Go to your profile to view, download, or share it on LinkedIn.`,
+          type: 'certificate',
+        });
       }
     }
 
@@ -426,11 +439,15 @@ export const adminGrantAccess = async (req, res, next) => {
     }
 
     if (targetType === 'certificate') {
+      const course = await Course.findById(targetId);
+      const courseTitle = course ? course.title : 'Verified Certificate';
       let cert = await Certificate.findOne({ userId, courseId: targetId });
       if (!cert) {
         cert = new Certificate({
           userId,
           courseId: targetId,
+          userName: user.username,
+          courseTitle: courseTitle,
           certificateId: `CERT-ADMIN-${Date.now()}`,
           isPaid: true,
           issuedAt: Date.now(),
@@ -440,6 +457,14 @@ export const adminGrantAccess = async (req, res, next) => {
         cert.issuedAt = Date.now();
       }
       await cert.save();
+
+      // Create success notification for user
+      await Notification.create({
+        userId: user._id,
+        title: 'Certificate Unlocked! 🎓',
+        content: `Your verified certificate for "${courseTitle}" is now unlocked! Go to your profile to view, download, or share it on LinkedIn.`,
+        type: 'certificate',
+      });
     } else if (targetType === 'book') {
       if (!user.unlockedBooks.includes(targetId)) {
         user.unlockedBooks.push(targetId);
