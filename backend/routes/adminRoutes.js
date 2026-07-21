@@ -23,6 +23,7 @@ import {
   adminGetPendingPayments,
   adminApprovePayment,
   adminGrantAccess,
+  adminSeedDatabase,
 } from '../controllers/adminController.js';
 import { adminCreateCourseValidator, adminUpdateCourseValidator } from '../middleware/validationMiddleware.js';
 
@@ -34,6 +35,7 @@ router.use(admin);
 
 // Dashboard metrics
 router.get('/stats', getAdminStats);
+router.post('/seed-db', adminSeedDatabase);
 
 // Payments & Access Grants
 router.get('/payments', adminGetPendingPayments);

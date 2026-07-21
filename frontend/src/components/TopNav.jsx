@@ -111,14 +111,14 @@ export default function TopNav() {
         <div className="flex items-center gap-6">
           <Link to="/" className="flex items-center gap-1.5 focus:outline-none shrink-0">
             <img src="/logo.png" alt="Dexterity Learn Logo" className="h-8 w-8 rounded-lg border-2 border-slate-950 shadow-flat-sm" />
-            <span className="text-sm font-black tracking-tight text-slate-900 dark:text-slate-200">
+            <span className="hidden md:inline text-sm font-black tracking-tight text-slate-900 dark:text-slate-200">
               Dexterity <span className="text-brand-600 dark:text-brand-400 font-black">Learn</span>
             </span>
           </Link>
         </div>
 
         {/* Center: Global Search Bar */}
-        <div ref={searchRef} className="relative flex flex-1 max-w-[160px] xs:max-w-[200px] mx-2">
+        <div ref={searchRef} className="relative flex flex-1 max-w-[110px] xs:max-w-[150px] sm:max-w-[200px] mx-1 sm:mx-2">
           <div className="relative w-full">
             <span className="absolute inset-y-0 left-0 flex items-center pl-2.5 text-slate-400">
               <Search className="h-3.5 w-3.5" />

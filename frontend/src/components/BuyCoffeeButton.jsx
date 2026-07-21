@@ -13,10 +13,11 @@ export default function BuyCoffeeButton({ className = '' }) {
   return (
     <button
       onClick={handleCoffeeClick}
-      className={`flex items-center gap-1.5 bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-black px-3 py-1.5 rounded-xl border-2 border-slate-950 shadow-flat-sm transition active:translate-y-0.5 ${className}`}
+      className={`flex items-center gap-1 bg-amber-400 hover:bg-amber-300 text-slate-950 text-[10px] md:text-xs font-black px-2.5 md:px-3 py-1.5 rounded-xl border-2 border-slate-950 shadow-flat-sm transition active:translate-y-0.5 ${className}`}
+      title="Buy Me a Coffee Support"
     >
-      <Coffee className="h-4 w-4" />
-      <span>Buy Coffee</span>
+      <Coffee className="h-3.5 w-3.5" />
+      <span className="hidden xs:inline">Buy Coffee</span>
     </button>
   );
 }

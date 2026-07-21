@@ -29,10 +29,10 @@ const seedData = async () => {
 
     // 1. Seed Categories
     const categories = await Category.insertMany([
-      { name: 'Web Development', slug: 'web-development', icon: 'Layout' },
-      { name: 'Programming', slug: 'programming', icon: 'Code' },
-      { name: 'AI & Machine Learning', slug: 'ai-machine-learning', icon: 'Cpu' },
-      { name: 'Interview & Career', slug: 'interview-career', icon: 'Briefcase' },
+      { name: 'AI Engineering', slug: 'ai-engineering', icon: 'Cpu' },
+      { name: 'Workflow Automation', slug: 'workflow-automation', icon: 'Briefcase' },
+      { name: 'AI Design & Creative', slug: 'ai-design-creative', icon: 'Layout' },
+      { name: 'AI Career Prep', slug: 'ai-career-prep', icon: 'Award' },
     ]);
     console.log("Categories seeded!");
 
@@ -40,18 +40,14 @@ const seedData = async () => {
     const adminPassword = await bcrypt.hash('admin123', 10);
     const userPassword = await bcrypt.hash('user123', 10);
 
-    const users = await User.insertMany([
+    const seededUsers = await User.insertMany([
       {
         username: 'admin',
         email: 'admin@dexteritylearn.com',
         password: adminPassword,
         role: 'admin',
         isVerified: true,
-        progress: {
-          xp: 1500,
-          streak: 12,
-          badges: ['Code Master', 'Elite Admin'],
-        },
+        progress: { xp: 1500, streak: 12, badges: ['AI Master', 'Elite Admin'] },
       },
       {
         username: 'student',
@@ -59,11 +55,7 @@ const seedData = async () => {
         password: userPassword,
         role: 'user',
         isVerified: true,
-        progress: {
-          xp: 250,
-          streak: 3,
-          badges: ['Code Novice'],
-        },
+        progress: { xp: 250, streak: 3, badges: ['AI Novice'] },
       },
     ]);
     console.log("Users seeded!");
@@ -71,221 +63,543 @@ const seedData = async () => {
     // 3. Seed Announcements
     await Announcement.insertMany([
       {
-        title: 'Complete MERN Stack Rewrite Active!',
-        content: 'Welcome to the brand new Dexterity Learn app. Enjoy smooth page transitions, PWA offline reading, and robust course progress tracking!',
+        title: 'New Dynamic AI Courses Seeding Active!',
+        content: 'Explore our 9 brand-new AI masterclass syllabus pathways, hands-on capstone challenges, and verifiable gold certificate options.',
         category: 'Feature Launch',
         active: true,
       },
       {
-        title: 'Claim Professional Certifications',
-        content: 'Finish 100% of any course syllabus, complete quizzes, and unlock your formal certificate for download.',
+        title: 'Earn Industry-Recognized Credentials',
+        content: 'Finish 100% of any course syllabus, complete quizzes, and claim your official gold certificate via WhatsApp payment gateway.',
         category: 'General',
         active: true,
       },
     ]);
     console.log("Announcements seeded!");
 
-    // 4. Seed Books (First 3 pages are free, pages 4+ will trigger paywall)
-    const books = await Book.insertMany([
+    // Helper mapping for the 9 courses
+    const coursesMeta = [
       {
-        title: 'Python Notes for Professionals',
-        slug: 'python-notes-for-professionals',
-        description: 'Accelerate your Python expertise with this comprehensive reference guide. Contains notes, cheat sheets, and idiomatic samples.',
-        coverImage: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400&q=80',
-        author: 'JSN Creative',
-        price: 199,
-        rating: 4.8,
-        pages: [
-          {
-            pageNumber: 1,
-            content: '# Chapter 1: Introduction to Python\n\nPython is an interpreted, high-level, general-purpose programming language. Created by Guido van Rossum and first released in 1991, Python\'s design philosophy emphasizes code readability with its notable use of significant whitespace.',
-            readingTime: '2 mins',
-          },
-          {
-            pageNumber: 2,
-            content: '# Chapter 2: Python Syntax & Variables\n\nIn Python, variables are created when you assign a value to it. Python has no command for declaring a variable.\n\n```python\nx = 5\ny = "Hello, World!"\nprint(x)\nprint(y)\n```\nIndentation in Python is very important. It refers to the spaces at the beginning of a code line.',
-            readingTime: '3 mins',
-          },
-          {
-            pageNumber: 3,
-            content: '# Chapter 3: Control Flow Structures\n\nPython supports the usual logical conditions from mathematics: `if`, `elif`, `else` statements.\n\n```python\na = 33\nb = 200\nif b > a:\n    print("b is greater than a")\n```\nThis concludes the free chapters. Learn about lists, loops, and OOP concepts on the next page!',
-            readingTime: '3 mins',
-          },
-          {
-            pageNumber: 4,
-            content: '# Chapter 4: Data Structures (Lists, Tuples, Dicts)\n\nLists are used to store multiple items in a single variable. Lists are one of 4 built-in data types in Python used to store collections of data, the other 3 are Tuple, Set, and Dictionary.\n\n```python\nthislist = ["apple", "banana", "cherry"]\nprint(thislist)\n```',
-            readingTime: '4 mins',
-          },
-          {
-            pageNumber: 5,
-            content: '# Chapter 5: Object-Oriented Programming in Python\n\nPython is an object-oriented programming language. Almost everything in Python is an object, with its properties and methods. A Class is like an object constructor, or a "blueprint" for creating objects.\n\n```python\nclass MyClass:\n  x = 5\n\np1 = MyClass()\nprint(p1.x)\n```',
-            readingTime: '5 mins',
-          },
+        title: 'Prompt Engineering Masterclass',
+        slug: 'prompt-engineering',
+        description: 'Master advanced instruction tuning, context compression, Few-Shot framing, Chain-of-Thought reasoning, ReAct agent architectures, and LLM guardrail protection systems.',
+        shortDescription: 'Master instruction tuning, Few-Shot formatting, Chain-of-Thought, and LLM defense systems.',
+        difficulty: 'Beginner',
+        estimatedTime: '6 hours',
+        category: 'AI Engineering',
+        image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&q=80',
+        modules: [
+          'Foundations of Prompting',
+          'Context Engineering & Windows',
+          'Few-Shot Instruction Tuning',
+          'Chain-of-Thought Reasoning',
+          'ReAct Tool Pattern Architecture',
+          'System Messages & Persona Tuning',
+          'Anti-Jailbreak Guardrail Systems',
+          'Multi-Agent Prompt Orchestration'
         ],
+        lessons: [
+          ['LLM Basics & Tokenization', 'System vs User Messages', 'Vibe-less Precise Instructions', 'Temperature & Top-P settings'],
+          ['Context Windows & Limitations', 'Context Compression Tricks', 'Information Retrieval Anchoring', 'Instruction Ordering Rules'],
+          ['Zero-Shot vs Few-Shot Tuning', 'Few-Shot Example Structuring', 'Handling Out-Of-Distribution Prompts', 'Synthesizing Synthetic Few-Shot Sets'],
+          ['Basic Chain-of-Thought', 'Zero-Shot CoT Techniques', 'Self-Consistency CoT decoding', 'Tree of Thoughts Framework'],
+          ['Introduction to ReAct Loop', 'Formulating Action Prompts', 'Interpreting Tool Outputs', 'Handling Infinite Loop Crashes'],
+          ['Persona Architecture Design', 'Instruction Injection Bounds', 'Consistent Style Constraints', 'Structuring Outputs (JSON/Markdown)'],
+          ['Prompt Injection Attacks', 'Leaking System Prompts', 'Delimiter Anchored Defenses', 'Prompt Evaluation Guardrails'],
+          ['Collaborative Prompt Teams', 'Agent-to-Agent Communication', 'Debating Agent Frameworks', 'Compiling Prompts dynamically']
+        ]
       },
       {
-        title: 'Sleek CSS Layout Masterclass',
-        slug: 'sleek-css-layout-masterclass',
-        description: 'Master Flexbox, Grid layouts, custom variables, and responsive design systems using pure Vanilla CSS.',
-        coverImage: 'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=400&q=80',
-        author: 'Muhammad Jawad M R',
+        title: 'AI Workflow Automation',
+        slug: 'workflow-automation',
+        description: 'Build enterprise-grade automated event triggers, custom webhooks, multi-step API pipelines, error handling logic, and cron scheduling systems.',
+        shortDescription: 'Build enterprise-grade automated event pipelines, custom webhooks, and cron logic.',
+        difficulty: 'Intermediate',
+        estimatedTime: '8 hours',
+        category: 'Workflow Automation',
+        image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&q=80',
+        modules: [
+          'Introduction to Automation',
+          'Webhooks & Event Triggers',
+          'Multi-Step API Integrations',
+          'Error Handling & Retries',
+          'Cron Scheduling Systems',
+          'Data Transformations',
+          'Production Deployments',
+          'API Rate Limiting & Logs'
+        ],
+        lessons: [
+          ['Automation Mindset & Architecture', 'Choosing Make, n8n, or Custom Node', 'API Key & OAuth Security', 'Payload Structures (JSON/XML)'],
+          ['Webhook Triggers & Listeners', 'Handling Payload Verification', 'Rate Limits on Inbound Webhooks', 'Debug Inbound Webhooks Locally'],
+          ['Chaining Web Services', 'Dynamic Field Mapping', 'Conditional Router Branches', 'Looping through Arrays in n8n'],
+          ['Graceful Error Recovery', 'Exponential Backoff Retries', 'Slack Alert Failures', 'Data Fallbacks & Storing Dead Letters'],
+          ['Cron Expression Syntax', 'Interval Triggers (Minutes/Hours)', 'Idempotency in Scheduled Tasks', 'Handling Large Offset Datetime Zones'],
+          ['Regular Expressions in Pipelines', 'Mapping XML to Flat JSON', 'Base64 Encrypted File Streams', 'JSON Schema Validation'],
+          ['Deploying n8n on Docker', 'Using Cloud Services (Render/Railway)', 'Scaling Memory for Concurrent Runs', 'Team Collaboration Workspaces'],
+          ['API Token Rotations', 'Caching Responses with Redis', 'Tracing Logs on Automation Failures', 'Rate Limit Throttling Policies']
+        ]
+      },
+      {
+        title: 'AI Image Generation & Design',
+        slug: 'ai-image-generation',
+        description: 'Harness Midjourney parameters, Stable Diffusion ControlNet, custom LoRAs, image outpainting, and AI design pipelines for professional marketing creative assets.',
+        shortDescription: 'Harness Midjourney parameters, Stable Diffusion ControlNet, custom LoRAs, and outpainting.',
+        difficulty: 'Beginner',
+        estimatedTime: '5 hours',
+        category: 'AI Design & Creative',
+        image: 'https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?w=400&q=80',
+        modules: [
+          'Text-to-Image Foundations',
+          'Midjourney Advanced Parameters',
+          'Stable Diffusion Operations',
+          'ControlNet Architectures',
+          'Custom LoRA Training',
+          'Inpainting & Outpainting',
+          'Professional AI Retouching',
+          'Commercial Pipelines'
+        ],
+        lessons: [
+          ['Image Model Architecture', 'Generative Adversarial Nets vs Diffusion', 'Model Weights & Checkpoints', 'Seed Parameters & Determinism'],
+          ['Aspect Ratios & Versions (--v)', 'Stylize and Weird parameters', 'Multi-prompt Weighting (::)', 'Image Prompt Blends'],
+          ['Automatic1111 GUI Walkthrough', 'Sampling Steps & CFG Scale', 'Sampling Methods (Euler, DPM++)', 'Upscaler Comparison (RealESRGAN)'],
+          ['ControlNet Canny Edge detection', 'Depth Map & Pose Alignment', 'Scribble & Line Art inputs', 'Combining Multiple ControlNets'],
+          ['Preparing LoRA Datasets', 'Tagging & Capturing Concepts', 'Epochs, Learning Rates & Training', 'Evaluating Model Loss Logs'],
+          ['Masked Inpainting Principles', 'Prompt-guided Outpainting', 'Canvas Extender Layouts', 'Resolution Grid Matching'],
+          ['Upscaling Resolution cleanly', 'Correcting Hands & Faces', 'Color Grading Generative Images', 'Photoshop & Vector Compositing'],
+          ['Generating Cohesive Ad Assets', 'UX/UI Mockup Pipelines', 'Licensing & Copyright Laws', 'Automating Bulk Image Workflows']
+        ]
+      },
+      {
+        title: 'Vibe Coding & Rapid Prototyping',
+        slug: 'vibe-coding',
+        description: 'Vibe Coding is conversational software development. Build, test, and deploy interactive frontend mockups and full-stack MVPs using purely natural language instruction.',
+        shortDescription: 'Build, test, and deploy web applications using natural language vibe loops.',
+        difficulty: 'Beginner',
+        estimatedTime: '4 hours',
+        category: 'AI Engineering',
+        image: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=400&q=80',
+        modules: [
+          'Concept of Vibe Coding',
+          'Conversational Setup & Editors',
+          'Designing UI Mockups Fast',
+          'Iterative Refinement Loops',
+          'CSS & Tailored Styling',
+          'Mocking DBs & API Services',
+          'Deploying Prototype MVPs',
+          'From Prototype to Production'
+        ],
+        lessons: [
+          ['Vibe Coding Definition', 'Natural Language Compiler Idea', 'AI Chat as a Coding Partner', 'Managing the Developer State'],
+          ['Cursor Editor & v0 Setup', 'Configuring AI System Rules', 'Multi-file Coding Contexts', 'Reading Compiler Error Logs'],
+          ['Drafting wireframes in text', 'Adding Interactive JS States', 'Vibe Coding Responsive Menus', 'Component Separation rules'],
+          ['Interpreting AI Code Changes', 'Refinement Prompting Patterns', 'Dealing with Feature Creep', 'Locating Broken References'],
+          ['Injecting Tailwind CSS Classes', 'Dark Mode Vibe Settings', 'Layout Polish & Grid Alignments', 'Hover and Micro-animations'],
+          ['Simulating Local Storage DBs', 'Creating Mock Express routes', 'Vibe-generated JSON feeds', 'State Synchronization'],
+          ['Vercel & Netlify Deployments', 'Static Site Hosting setup', 'Dynamic SPA route handling', 'Domain mapping prototypes'],
+          ['Adding real DB collections', 'Refactoring Vibe spaghetti code', 'Securing API credentials', 'Writing custom test assertions']
+        ]
+      },
+      {
+        title: 'Custom GPTs & Assistants',
+        slug: 'custom-gpts',
+        description: 'Build custom AI assistants, connect external knowledge sources, configure OAuth client actions, and implement security controls for enterprise assistants.',
+        shortDescription: 'Build custom AI assistants, connect external knowledge, and configure OAuth client actions.',
+        difficulty: 'Intermediate',
+        estimatedTime: '6 hours',
+        category: 'AI Engineering',
+        image: 'https://images.unsplash.com/photo-1531747118685-ca8fa6e08806?w=400&q=80',
+        modules: [
+          'OpenAI Assistants Overview',
+          'Custom Instructions Architecture',
+          'RAG Document Uploads',
+          'Third-Party Actions Setup',
+          'API Authentication Flows',
+          'Custom Interface Builders',
+          'Security & Safety Bounds',
+          'Publishing & Analytics'
+        ],
+        lessons: [
+          ['GPT Builder Interface walkthrough', 'Assistants API Lifecycle', 'System Prompts vs Custom GPTs', 'Billing & Token Usage Rules'],
+          ['Structuring System Instructions', 'Defining Assistive Personas', 'Formatting Output Rules', 'Instruction Priorities'],
+          ['Uploading Knowledge Databases', 'Document Parsers & Chunking', 'Vector Search Under the Hood', 'Querying Internal PDF Data'],
+          ['OpenAPI Specification JSON', 'Connecting External HTTP APIs', 'Testing Actions in Sandbox', 'Dynamic Action Parameters'],
+          ['OAuth 2.0 Client Credentials', 'Bearer Authentication Keys', 'Validating Token Handshakes', 'Security of Private Keys'],
+          ['Designing Dashboard Layouts', 'Handling Voice-to-Text inputs', 'Displaying Rich Card responses', 'Feedback collection nodes'],
+          ['Preventing Knowledge Leaks', 'Sanitizing System Inputs', 'Refusing Malicious Requests', 'Instruction Leak Defenses'],
+          ['Publishing to public directories', 'SEO for Custom Assistants', 'Analyzing User Query Metrics', 'Scaling API Backends']
+        ]
+      },
+      {
+        title: 'AI Video Generation & Cinema',
+        slug: 'ai-video-generation',
+        description: 'Produce cinematic video loops, orchestrate camera angles using Runway Gen-2, lip-sync character dialogues, and direct cohesive AI-generated visual narratives.',
+        shortDescription: 'Produce cinematic video loops, Runway Gen-2 camera moves, and lip-sync dialogue.',
+        difficulty: 'Beginner',
+        estimatedTime: '5 hours',
+        category: 'AI Design & Creative',
+        image: 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=400&q=80',
+        modules: [
+          'Cinematic Video Pipelines',
+          'Text-to-Video Operations',
+          'Runway Gen-2 Camera Tools',
+          'Pika Labs Motion Settings',
+          'Character Dialogue LipSync',
+          'Frame Interpolation & SlowMo',
+          'Cinematic Color Grading',
+          'Cohesive Audio & Sound FX'
+        ],
+        lessons: [
+          ['Video Frame Rate Mechanics', 'Diffusion Models for Motion', 'Storyboard & Narrative Prep', 'AI Video Tool Stack Review'],
+          ['Drafting Motion Prompts', 'Controlling Physics & Chaos', 'Generating Video from Images', 'Upscaling video clip quality'],
+          ['Motion Brush Directions', 'Camera Zoom, Pan & Roll', 'Creating Consistent Camera Moves', 'Refining Video Seeds'],
+          ['Command Syntax in Pika Labs', 'Controlling Motion Intensity (-motion)', 'Fixing FPS rate constraints', 'Looping video segments'],
+          ['Audio-to-LipSync pipelines', 'Voice cloning with ElevenLabs', 'Character consistency strategies', 'Facial Expression triggers'],
+          ['Flow Frame Interpolation', 'Smooth Slow Motion (Twixtor)', 'Fixing Morphing Artifacts', 'Clean Loop Transitions'],
+          ['LUTS & Cinematic Color Grids', 'Matching clip lighting states', 'Visual FX Overlay additions', 'Resolving Grain & Noise'],
+          ['Soundtrack Layering techniques', 'Foley & SFX AI generators', 'Non-linear Video editing', 'Exporting UHD AI video files']
+        ]
+      },
+      {
+        title: 'AI-Assisted Software Development',
+        slug: 'ai-assisted-dev',
+        description: 'Maximize productivity using GitHub Copilot and Codeium. Automate boilerplate code, execute refactoring blocks, write automated unit tests, and diagnose compiler trace stack frames.',
+        shortDescription: 'Maximize productivity using GitHub Copilot, refactor code, and automate unit tests.',
+        difficulty: 'Beginner',
+        estimatedTime: '7 hours',
+        category: 'AI Engineering',
+        image: 'https://images.unsplash.com/photo-1607799279861-4dd421887fb3?w=400&q=80',
+        modules: [
+          'GitHub Copilot Ecosystem',
+          'Inline Code Generation',
+          'Refactoring Spaghetti Code',
+          'Automated Unit Testing',
+          'AI Code Review Workflows',
+          'Shell Terminal Automations',
+          'Diagnosing Stack Traces',
+          'Production Deployment CI/CD'
+        ],
+        lessons: [
+          ['Configuring Copilot Extensions', 'Contextual Files Selection', 'Copilot Chat Pane controls', 'Telemetry & Privacy parameters'],
+          ['Inline Code Completion shortcuts', 'Instruction Commenting guides', 'Generating complex SQL queries', 'Building API routes fast'],
+          ['Automated Style Standardization', 'Replacing Loops with Map/Reduce', 'Reducing Cognitive Complexity', 'Isolating Utility Functions'],
+          ['Writing Jest & Mocha tests', 'Mocking HTTP dependencies', 'Covering Edge Failure Cases', 'Evaluating Code Coverage metrics'],
+          ['Analyzing Pull Requests with AI', 'Identifying Performance bottlenecks', 'Security vulnerability detection', 'Code optimization checks'],
+          ['Natural Language Terminal commands', 'Automating Build Shell Scripts', 'Git Log parsing shortcuts', 'Container command generators'],
+          ['Parsing NestJS / Spring Stacktraces', 'Debugging Database Timeout Logs', 'Resolving Dependency Conflicts', 'Fixing Null Pointer Errors'],
+          ['Automated Release Notes', 'AI-assisted GitHub Actions YAML', 'CI/CD pipeline monitoring', 'Rollback scripts creation']
+        ]
+      },
+      {
+        title: 'Agentic Coding & AI Agents',
+        slug: 'agentic-coding',
+        description: 'Design multi-agent systems, establish agent communication protocols, configure tool calling capabilities, and create self-debugging code execution loops.',
+        shortDescription: 'Design multi-agent systems, tool calling configurations, and self-debugging loops.',
+        difficulty: 'Advanced',
+        estimatedTime: '9 hours',
+        category: 'AI Engineering',
+        image: 'https://images.unsplash.com/photo-1614741118887-7a4ee193a5fa?w=400&q=80',
+        modules: [
+          'Multi-Agent Architectures',
+          'Tool Calling Configurations',
+          'Communication Protocols',
+          'Human-in-the-Loop Triggers',
+          'Self-Debugging Run loops',
+          'CrewAI & AutoGen Frameworks',
+          'Memory & State Persistence',
+          'Scaling Agent Clusters'
+        ],
+        lessons: [
+          ['Agentic Loop Mindset', 'ReAct Loop vs Custom Agents', 'Autonomous Execution Boundaries', 'Preventing Infinite loops'],
+          ['Defining JSON Tool Schemas', 'Binding tools to OpenAI API', 'Validating tool parameters', 'Graceful tool failure handling'],
+          ['Agent Collaboration Layouts', 'Hierarchical Orchestrators', 'Message passing structures', 'Resolving Agent consensus blocks'],
+          ['Setting Interrupter Checkpoints', 'Interactive shell prompts', 'User validation input hooks', 'Overriding Agent actions'],
+          ['Running Compiler Sandbox tests', 'Extracting Standard Error stack', 'Feeding backtrace into Agent', 'Validating success benchmarks'],
+          ['CrewAI Tasks & Agents layout', 'AutoGen Conversational agents', 'Using local LLMs with agents', 'Comparing agent frameworks'],
+          ['Adding Redis/MongoDB memories', 'Short-term vs Long-term caching', 'Vectorizing Agent history logs', 'Session state management'],
+          ['Hosting Agents on Kubernetes', 'Queue-based task managers', 'Monitoring logs with Prometheus', 'Managing Rate limit schedules']
+        ]
+      },
+      {
+        title: 'Production RAG Systems',
+        slug: 'rag-systems',
+        description: 'Deploy advanced Retrieval-Augmented Generation systems. Optimise vector database indices, configure semantic search chunking, re-rank outcomes, and monitor query latencies.',
+        shortDescription: 'Deploy advanced Retrieval-Augmented Generation systems, optimize vector indexing, and re-rank outcomes.',
+        difficulty: 'Advanced',
+        estimatedTime: '8 hours',
+        category: 'AI Engineering',
+        image: 'https://images.unsplash.com/photo-1544383835-bda2bc66a55d?w=400&q=80',
+        modules: [
+          'Vector Index Architectures',
+          'Pinecone & Milvus Database Setup',
+          'Document Chunking & Overlaps',
+          'Semantic Search Operations',
+          'Re-ranking Search Results',
+          'Context Window Compression',
+          'Hybrid Keyword Vector Search',
+          'Production Monitoring & Latency'
+        ],
+        lessons: [
+          ['RAG Pipeline overview', 'Embeddings Models (ADA, Cohere)', 'Vector Distance Metrics (Cosine, L2)', 'Indexing speeds vs Recall rates'],
+          ['Creating namespaces in Pinecone', 'Partitioning Collections in Milvus', 'Metadata Filtering configurations', 'Scale-up Index operations'],
+          ['Sentence Splitter strategies', 'Slide Window Chunk overlap sizing', 'Parsing Complex PDFs & Tables', 'Semantic token boundaries'],
+          ['Embedding User Search queries', 'Retrieval Top-K query speeds', 'Sparse vs Dense vectors', 'Evaluating Retrieval Accuracy'],
+          ['Introduction to Cohere Re-ranker', 'Filtering out irrelevant chunks', 'Optimizing Token usage parameters', 'Improving Answer relevance'],
+          ['Summarizing Long Context feeds', 'Information extraction limits', 'LLM context limits tricks', 'Instruction placement guidelines'],
+          ['BM25 Keyword search algorithm', 'Reciprocal Rank Fusion (RRF)', 'Combining dense & sparse matrices', 'Tuning Hybrid weights'],
+          ['RAGAS Evaluation Framework', 'Ground Truth comparison metrics', 'Pinecone Index latency charts', 'Caching Vector Queries']
+        ]
+      }
+    ];
+
+    // Seed Courses & Lessons programmatically
+    for (const courseMeta of coursesMeta) {
+      // 1. Create Course
+      const course = await Course.create({
+        title: courseMeta.title,
+        slug: courseMeta.slug,
+        description: courseMeta.description,
+        shortDescription: courseMeta.shortDescription,
+        difficulty: courseMeta.difficulty,
+        estimatedTime: courseMeta.estimatedTime,
+        category: courseMeta.category,
+        image: courseMeta.image,
+        certificatePrice: 499,
+        isDraft: false,
+        quizzes: [
+          {
+            question: `What is the primary objective of ${courseMeta.title}?`,
+            options: ['To learn theory only', 'To build production-ready implementations', 'To generate templates without editing', 'To deploy static assets only'],
+            answerIndex: 1,
+            explanation: `The primary objective of ${courseMeta.title} is to build and deploy production-ready practical implementations.`
+          },
+          {
+            question: 'True or False: All learning content is 100% free on Dexterity Learn.',
+            options: ['True', 'False'],
+            answerIndex: 0,
+            explanation: 'Yes, learning lessons and syllabus topics is 100% free. Only official credentials/certificates are paid.'
+          }
+        ]
+      });
+
+      // 2. Generate and Insert the 32 Lessons (8 modules * 4 lessons)
+      const lessonsToInsert = [];
+      let order = 1;
+      for (let m = 0; m < 8; m++) {
+        const moduleName = courseMeta.modules[m];
+        for (let l = 0; l < 4; l++) {
+          const lessonTitle = courseMeta.lessons[m][l];
+          const lessonSlug = `module-${m + 1}-lesson-${l + 1}`;
+
+          lessonsToInsert.push({
+            courseId: course._id,
+            title: `${moduleName} — ${lessonTitle}`,
+            slug: lessonSlug,
+            content: `# ${lessonTitle}\n\nWelcome to this comprehensive lesson on **${lessonTitle}** as part of our **${courseMeta.title}** syllabus.\n\n### 🎓 Learning Objectives\n- Learn the core mechanics of ${lessonTitle}.\n- Implement secure execution scopes.\n- Debug execution trace logs and fix bottlenecks.\n\n### 💡 Conceptual Background\nDeveloping systems around ${lessonTitle} requires strict input validation, proper rate limit fallbacks, and handling system failures. Separating business logic from prompt templates is crucial for scale.\n\n### 💻 Practical Implementation Sample\nHere is a production-grade Javascript template for this workflow:\n\n\`\`\`javascript\n// Developer implementation trace\nfunction runTask() {\n  console.log("Starting task execution for ${lessonTitle}...");\n  const isVerified = true;\n  return {\n    success: isVerified,\n    timestamp: Date.now()\n  };\n}\nrunTask();\n\`\`\`\n\n### ⚠️ Common Mistakes\n1. **Unescaped Input**: Always sanitize variable inputs to prevent script injections.\n2. **Rate Limit Timeouts**: Always use exponential backoff timers on API requests.\n\n### 💡 Pro Tip\nFor production stability, log all inputs/outputs to a persistent database for monitoring.`,
+            codeSnippets: [
+              {
+                language: 'javascript',
+                code: `// Test script for ${lessonTitle}\nconsole.log("Executing sandbox trace...");\nconst active = true;\nconsole.log("Task successful:", active);`
+              }
+            ],
+            order: order++
+          });
+        }
+      }
+
+      await Lesson.insertMany(lessonsToInsert);
+      console.log(`Course "${courseMeta.title}" and its 32 lessons seeded successfully!`);
+    }
+
+    // 4. Seed Playbooks (5 Books)
+    await Book.insertMany([
+      {
+        title: 'AI Freelancer Playbook',
+        slug: 'ai-freelancer-playbook',
+        description: 'Complete freelance blueprints. Master client acquisitions, proposal writing, pricing architectures, master services agreements, and case studies to grow a high-margin AI agency.',
+        coverImage: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&q=80',
+        author: 'JSN Creative',
         price: 299,
         rating: 4.9,
         pages: [
           {
             pageNumber: 1,
-            content: '# Chapter 1: The CSS Box Model\n\nAll HTML elements can be considered as boxes. In CSS, the term "box model" is used when talking about design and layout. The CSS box model is essentially a box that wraps around every HTML element. It consists of: margins, borders, padding, and the actual content.',
-            readingTime: '2 mins',
+            content: '# Finding High-Paying AI Clients\n\nTo build a successful AI consulting or freelance business, you must target clients looking for high-ROI automation solutions. Learn how to source high-ticket leads on Upwork, LinkedIn, and cold email campaigns.',
+            readingTime: '2 mins'
           },
           {
             pageNumber: 2,
-            content: '# Chapter 2: Flexbox Fundamentals\n\nThe Flexible Box Layout Module, makes it easier to design flexible responsive layout structure without using float or positioning.\n\n```css\n.container {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n}\n```',
-            readingTime: '3 mins',
+            content: '# Pricing Architectures & SLA Setup\n\nAvoid hourly billing! Implement project-based pricing and recurring retainers. This page outlines standard rates for custom chatbot integration (₹75,000+) and automated workflows (₹50,000+).',
+            readingTime: '3 mins'
           },
           {
             pageNumber: 3,
-            content: '# Chapter 3: Grid Layout Basics\n\nThe CSS Grid Layout Module offers a grid-based layout system, with rows and columns, making it easier to design web pages without having to use floats and positioning.\n\n```css\n.grid-container {\n  display: grid;\n  grid-template-columns: auto auto auto;\n}\n```',
-            readingTime: '3 mins',
+            content: '# Professional Proposal Template\n\nUse this proven client proposal layout. Cover the scope of work, integration architecture, delivery milestones, training guides, and maintenance SLAs clearly to guarantee high close rates.',
+            readingTime: '3 mins'
           },
           {
             pageNumber: 4,
-            content: '# Chapter 4: CSS Custom Properties (Variables)\n\nCSS variables have access to the DOM, which means you can change them with JavaScript, modify them on media queries, or inherit them.\n\n```css\n:root {\n  --main-bg-color: #0d9488;\n}\n.panel {\n  background-color: var(--main-bg-color);\n}\n```',
-            readingTime: '4 mins',
+            content: '# Premium Chapter: Master Service Agreement (MSA)\n\nThis premium page outlines standard contract SLA terms, safety bounds, liability constraints on AI hallucinations, and intellectual property transfers.',
+            readingTime: '4 mins'
           },
-        ],
+          {
+            pageNumber: 5,
+            content: '# Premium Case Study: ₹1,00,000/mo AI Agency\n\nRead our step-by-step breakdown of how a single freelancer scaled to ₹1,00,000 monthly recurring revenue by integrating webhooks & vector search RAGs for regional real estate businesses.',
+            readingTime: '5 mins'
+          }
+        ]
       },
+      {
+        title: 'AI Business Blueprint',
+        slug: 'ai-business-blueprint',
+        description: 'Build premium AI SaaS platforms. Learn how to validate product ideas, sketch Lean MVP frameworks, execute monetization strategies, and scale search engine optimizations.',
+        coverImage: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&q=80',
+        author: 'Muhammad Jawad M R',
+        price: 299,
+        rating: 4.8,
+        pages: [
+          {
+            pageNumber: 1,
+            content: '# AI SaaS Ideation & Niches\n\nLocate high-margin software business models. Look for manual, repetitive, text-heavy operations. Target narrow niches (e.g. AI proposal writers for construction firms) to avoid LLM wrapper price competition.',
+            readingTime: '2 mins'
+          },
+          {
+            pageNumber: 2,
+            content: '# Fast Product Validation\n\nBuild landing pages before writing code. Capture pre-sales using simple Stripe triggers or WhatsApp payment links. If you get 10+ paid signups, build the MVP.',
+            readingTime: '3 mins'
+          },
+          {
+            pageNumber: 3,
+            content: '# Building a 2-Week MVP\n\nUse bubble components, cursor vibe coding, and existing boilerplate templates. Connect OpenAI assistants API directly rather than coding complex neural networks from scratch.',
+            readingTime: '3 mins'
+          },
+          {
+            pageNumber: 4,
+            content: '# Premium Chapter: Tiered Subscription Billing\n\nSet up credit limits per pricing tier. Configure middleware checks to trace customer usage and prevent API cost runaway.',
+            readingTime: '4 mins'
+          },
+          {
+            pageNumber: 5,
+            content: '# Premium Scaling: SEO & Cold Email Loops\n\nLearn how to generate 100+ programmatically targeted landing pages to capture search queries, and automate cold outreach campaigns to B2B targets.',
+            readingTime: '4 mins'
+          }
+        ]
+      },
+      {
+        title: 'Ultimate Prompt Vault',
+        slug: 'ultimate-prompt-vault',
+        description: 'Over 1,000 categorized professional system instructions and templates across software development, marketing, sales, SEO, customer support, and automations.',
+        coverImage: 'https://images.unsplash.com/photo-1546410531-bb4caa6b424d?w=400&q=80',
+        author: 'JSN Creative',
+        price: 199,
+        rating: 4.9,
+        pages: [
+          {
+            pageNumber: 1,
+            content: '# Software Engineering & Refactoring Prompts\n\nUse this standard instruction template to clean code:\n\n`Refactor this code to follow SOLID principles and isolate utility dependencies. Exclude third-party libraries unless specified.`',
+            readingTime: '2 mins'
+          },
+          {
+            pageNumber: 2,
+            content: '# High-Conversion Marketing Prompts\n\nPrompt for copywriting frameworks:\n\n`Write an ad copy using the AIDA framework. Hook the reader immediately and focus on the time-saving ROI value.`',
+            readingTime: '3 mins'
+          },
+          {
+            pageNumber: 3,
+            content: '# Student & Academic Outlining Prompts\n\nInstruction tuning prompts:\n\n`Generate a detailed structured outline for a research topic. Categorize references and highlight key open debates.`',
+            readingTime: '2 mins'
+          },
+          {
+            pageNumber: 4,
+            content: '# Premium Chapter: Advanced Business & Sales Scripts\n\nUnlock system instructions that handle objection handling, cold outreach script tuning, and customer retention email automations.',
+            readingTime: '4 mins'
+          },
+          {
+            pageNumber: 5,
+            content: '# Premium Chapter: SEO & Keyword Matrix compilation\n\nGet the master prompt to extract search intents, outline semantic gaps, and write complete SEO articles that rank on Google.',
+            readingTime: '5 mins'
+          }
+        ]
+      },
+      {
+        title: 'Build 25 AI Projects',
+        slug: 'build-25-ai-projects',
+        description: 'Complete coding guide. Build 25 practical AI projects, featuring folder structures, architecture flowcharts, backend source code, and CI/CD deployment instructions.',
+        coverImage: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=400&q=80',
+        author: 'Dexterity Learn Dev Team',
+        price: 299,
+        rating: 4.9,
+        pages: [
+          {
+            pageNumber: 1,
+            content: '# Projects 1-5: AI Chatbots & Voice Assistants\n\nLearn the folder structures, API routes, and standard integration for a custom voice assistant using ElevenLabs and Node.js.',
+            readingTime: '3 mins'
+          },
+          {
+            pageNumber: 2,
+            content: '# Projects 6-10: Multi-Agent AI teams & Sandboxes\n\nEstablish state management rules for local CrewAI tasks, code executing containers, and safe sandboxing scripts.',
+            readingTime: '3 mins'
+          },
+          {
+            pageNumber: 3,
+            content: '# Projects 11-15: Automated Portfolio Generators\n\nBuild database schema collections, connect local storage API feeds, and render responsive CSS wireframes.',
+            readingTime: '3 mins'
+          },
+          {
+            pageNumber: 4,
+            content: '# Premium Chapter: RAG Database Query Dashboards\n\nUnlock complete Express JS routes, Pinecone vector query controllers, and PDF parsing scripts to build private knowledge search dashboards.',
+            readingTime: '5 mins'
+          },
+          {
+            pageNumber: 5,
+            content: '# Premium Chapter: Enterprise SaaS Billing Integration\n\nLearn how to construct Stripe webhook validators, manage dynamic user credit limits, and deploy backends on Docker Containers.',
+            readingTime: '5 mins'
+          }
+        ]
+      },
+      {
+        title: 'AI Career Accelerator',
+        slug: 'ai-career-accelerator',
+        description: 'Command high salaries. Learn AI roadmap steps, system design questions, portfolio construction, resume layouts, and ATS screening optimization blueprints.',
+        coverImage: 'https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=400&q=80',
+        author: 'JSN Creative',
+        price: 299,
+        rating: 4.8,
+        pages: [
+          {
+            pageNumber: 1,
+            content: '# 30-Day AI Engineer Learning Roadmap\n\nDay 1-10: Prompt engineering and token limitations.\nDay 11-20: Vector databases, chunking strategies, and semantic searches.\nDay 21-30: Autonomous agentic loops and tool calling integrations.',
+            readingTime: '2 mins'
+          },
+          {
+            pageNumber: 2,
+            content: '# System Design & Vector search scaling\n\nHow to design and whiteboard production RAG systems during tech reviews. Explain context window compaction and embedding model selection.',
+            readingTime: '3 mins'
+          },
+          {
+            pageNumber: 3,
+            content: '# Professional Resume & Portfolio layouts\n\nAvoid generic descriptions. Focus on performance gains: `Optimized context window search, reducing token latency by 42% and API cost by ₹15,000/mo.`',
+            readingTime: '3 mins'
+          },
+          {
+            pageNumber: 4,
+            content: '# Premium Chapter: GitHub Portfolio that Commands Attention\n\nStep-by-step instructions on making your GitHub profile showcase interactive live sandboxes, custom API actions, and production-ready codebases.',
+            readingTime: '4 mins'
+          },
+          {
+            pageNumber: 5,
+            content: '# Premium Chapter: LinkedIn Brand Scaling and ATS Optimization\n\nUnlock copywriting layouts to document your daily learning, pass automated resume screening bots, and land high-ticket remote contracts.',
+            readingTime: '5 mins'
+          }
+        ]
+      }
     ]);
-    console.log("Books seeded!");
+    console.log("Playbooks seeded successfully!");
 
-    // 5. Seed Courses & Lessons
-    const htmlCourse = await Course.create({
-      title: 'HTML Basics',
-      slug: 'html-basics',
-      description: 'The definitive guide to learning HyperText Markup Language. Learn structure, forms, inputs, and semantic page layouts.',
-      shortDescription: 'Learn structural markup, elements, tables, forms, and HTML5 semantic tags.',
-      difficulty: 'Beginner',
-      estimatedTime: '2 hours',
-      category: 'Web Development',
-      certificatePrice: 499,
-      isDraft: false,
-      image: 'https://images.unsplash.com/photo-1542831371-29b0f74f9713?w=400&q=80',
-      quizzes: [
-        {
-          question: 'What does HTML stand for?',
-          options: [
-            'Hyper Text Markup Language',
-            'Home Tool Markup Language',
-            'Hyperlinks and Text Markup Language',
-            'Hyper Tool Maker Language',
-          ],
-          answerIndex: 0,
-          explanation: 'HTML stands for Hyper Text Markup Language. It defines the structure of web pages.',
-        },
-        {
-          question: 'Choose the correct HTML element for the largest heading:',
-          options: ['<heading>', '<h6>', '<head>', '<h1>'],
-          answerIndex: 3,
-          explanation: '<h1> defines the most important and largest heading in HTML hierarchy.',
-        },
-      ],
-    });
-
-    await Lesson.insertMany([
-      {
-        courseId: htmlCourse._id,
-        title: 'Introduction to HTML',
-        slug: 'introduction-to-html',
-        content: '## What is HTML?\n\nHTML is the standard markup language for creating Web pages. It describes the structure of a Web page and consists of a series of elements. HTML elements tell the browser how to display the content.\n\nHere is a simple document structure:\n\n```html\n<!DOCTYPE html>\n<html>\n<head>\n  <title>Page Title</title>\n</head>\n<body>\n  <h1>My First Heading</h1>\n  <p>My first paragraph.</p>\n</body>\n</html>\n```',
-        codeSnippets: [
-          {
-            language: 'html',
-            code: '<!DOCTYPE html>\n<html>\n<head>\n  <title>Title</title>\n</head>\n<body>\n  <h1>Hello World</h1>\n</body>\n</html>',
-          },
-        ],
-        order: 1,
-      },
-      {
-        courseId: htmlCourse._id,
-        title: 'HTML Semantic Elements',
-        slug: 'html-semantic-elements',
-        content: '## Semantic Elements\n\nA semantic element clearly describes its meaning to both the browser and the developer.\n\nExamples of **non-semantic** elements: `<div>` and `<span>` - Tells nothing about its content.\n\nExamples of **semantic** elements: `<form>`, `<table>`, and `<article>` - Clearly defines its content.\n\nHTML5 offers specific structure wrappers:\n- `<header>`\n- `<nav>`\n- `<main>`\n- `<section>`\n- `<article>`\n- `<footer>`',
-        codeSnippets: [
-          {
-            language: 'html',
-            code: '<main>\n  <section>\n    <h2>Articles</h2>\n    <article>Story Content</article>\n  </section>\n</main>',
-          },
-        ],
-        order: 2,
-      },
-    ]);
-
-    const jsCourse = await Course.create({
-      title: 'JavaScript Basics',
-      slug: 'javascript-basics',
-      description: 'Master JavaScript (ES6+), the core programming language of the web. Learn data types, variables, scopes, DOM APIs, and closures.',
-      shortDescription: 'Learn variables, conditions, loops, array methods, DOM manipulation, and modern ES6.',
-      difficulty: 'Beginner',
-      estimatedTime: '4 hours',
-      category: 'Programming',
-      certificatePrice: 499,
-      isDraft: false,
-      image: 'https://images.unsplash.com/photo-1579468118864-1b9ea3c0db4a?w=400&q=80',
-      quizzes: [
-        {
-          question: 'Inside which HTML element do we put the JavaScript code?',
-          options: ['<js>', '<script>', '<scripting>', '<javascript>'],
-          answerIndex: 1,
-          explanation: 'JavaScript code is embedded inside <script> tags in HTML files.',
-        },
-        {
-          question: 'How do you create a function in JavaScript?',
-          options: [
-            'function myFunction()',
-            'function:myFunction()',
-            'function = myFunction()',
-            'def myFunction()',
-          ],
-          answerIndex: 0,
-          explanation: 'The function keyword is used followed by the function name and parentheses.',
-        },
-      ],
-    });
-
-    await Lesson.insertMany([
-      {
-        courseId: jsCourse._id,
-        title: 'JavaScript Syntax and Variables',
-        slug: 'javascript-syntax-and-variables',
-        content: '## JavaScript Statements\n\nJavaScript statements are composed of values, operators, expressions, keywords, and comments.\n\nJavaScript has three ways to declare variables:\n- `var` (old, function-scoped)\n- `let` (modern, block-scoped)\n- `const` (modern, constant block-scoped)\n\n```javascript\nlet name = "Jawad";\nconst speedOfLight = 299792458;\nconsole.log(name);\n```',
-        codeSnippets: [
-          {
-            language: 'javascript',
-            code: 'let name = "JSN";\nconst gravity = 9.8;\nconsole.log("Acceleration:", gravity);',
-          },
-        ],
-        order: 1,
-      },
-      {
-        courseId: jsCourse._id,
-        title: 'JavaScript Arrow Functions',
-        slug: 'javascript-arrow-functions',
-        content: '## ES6 Arrow Functions\n\nArrow functions allow us to write shorter function syntax:\n\n```javascript\n// Traditional Function\nlet sum = function(a, b) {\n  return a + b;\n};\n\n// Arrow Function\nlet sumArrow = (a, b) => a + b;\n\nconsole.log(sumArrow(5, 10)); // 15\n```\nArrow functions do not have their own `this`. They are not suited for defining object methods.',
-        codeSnippets: [
-          {
-            language: 'javascript',
-            code: 'const double = (x) => x * 2;\nconsole.log(double(10)); // 20',
-          },
-        ],
-        order: 2,
-      },
-    ]);
-
-    console.log("Courses and Lessons seeded!");
     console.log("Database seeded successfully!");
-    mongoose.connection.close();
+    process.exit(0);
   } catch (error) {
-    console.error(`Seeding error: ${error.message}`);
-    mongoose.connection.close();
+    console.error("Database seeding failed:", error.message);
+    process.exit(1);
   }
 };
 

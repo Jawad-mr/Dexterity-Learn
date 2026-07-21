@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Clock, ShieldAlert, Award, FileText, CheckCircle2, ChevronRight, Lock, CheckCircle, CreditCard, Sparkles, Loader2, Share2 } from 'lucide-react';
+import { Clock, ShieldAlert, Award, FileText, CheckCircle2, ChevronRight, Lock, CheckCircle, CreditCard, Sparkles, Loader2, Share2, MessageCircle } from 'lucide-react';
 import { api, useAuth } from '../context/AuthContext';
 
 export default function CourseSyllabus() {
@@ -208,14 +208,14 @@ export default function CourseSyllabus() {
         )}
 
         {/* Certificate Claim Checkout Spot */}
-        <div className="bg-gradient-to-r from-brand-300 to-brand-400 text-slate-900 rounded-3xl p-5 border-2 border-slate-950 shadow-flat-lg space-y-4">
+        <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 border-2 border-slate-950 dark:border-slate-800 shadow-flat space-y-4 text-slate-900 dark:text-white">
           <div className="flex items-start gap-3">
-            <div className="h-10 w-10 bg-slate-950 text-brand-400 rounded-xl flex items-center justify-center shrink-0 border-2 border-slate-950 shadow-flat-sm">
+            <div className="h-10 w-10 bg-brand-100 dark:bg-brand-950/40 text-brand-600 dark:text-brand-455 rounded-xl flex items-center justify-center shrink-0 border-2 border-slate-950 dark:border-slate-800 shadow-flat-sm">
               <Sparkles className="h-5 w-5" />
             </div>
             <div>
-              <h3 className="text-sm font-black">100% Free Course Learning</h3>
-              <p className="text-[11px] font-medium text-slate-850">
+              <h3 className="text-sm font-black">100% Free Learning</h3>
+              <p className="text-[11px] font-medium text-slate-600 dark:text-slate-400">
                 All lessons & quizzes are free! Upgrade anytime to get your official verifiable certificate.
               </p>
             </div>
@@ -227,9 +227,9 @@ export default function CourseSyllabus() {
                 const pName = encodeURIComponent(`${course.title} Certificate`);
                 navigate(`/payment?type=certificate&productId=${course._id}&name=${pName}&price=${course.certificatePrice || 499}`);
               }}
-              className="flex items-center justify-center gap-2 w-full bg-slate-950 hover:bg-slate-900 text-brand-400 hover:text-brand-300 text-xs font-black py-2.5 rounded-xl border-2 border-slate-950 shadow-flat-sm transition active:translate-y-[1px] active:shadow-none"
+              className="flex items-center justify-center gap-2 w-full bg-brand-400 hover:bg-brand-300 text-slate-950 text-xs font-black py-2.5 rounded-xl border-2 border-slate-950 shadow-flat-sm transition active:translate-y-[1px] active:shadow-none"
             >
-              <CreditCard className="h-4 w-4" /> Claim Certificate via WhatsApp (₹{course.certificatePrice || 499})
+              <MessageCircle className="h-4 w-4 fill-slate-950" /> Claim Certificate via WhatsApp (₹{course.certificatePrice || 499})
             </button>
           </div>
         </div>

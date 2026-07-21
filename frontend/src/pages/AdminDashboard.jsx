@@ -290,6 +290,35 @@ export default function AdminDashboard() {
         ))}
       </div>
 
+      {/* SECTION: Analytics Overview */}
+      {currentSection === 'analytics' && (
+        <div className="bg-white dark:bg-slate-900 border-2 border-slate-950 dark:border-slate-800 rounded-3xl p-5 shadow-flat space-y-4">
+          <h3 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
+            ⚙️ Database Seeding & Setup Utilities
+          </h3>
+          <p className="text-[11px] text-slate-500 leading-normal">
+            Completely reset and rebuild the Dexterity Learn MERN database. This will drop all collections and generate 9 detailed premium AI courses, 32 sequential lessons per course, and 5 playbooks with full chapters, previews, and prompt configurations.
+          </p>
+
+          <button
+            onClick={async () => {
+              if (window.confirm("WARNING: This will drop all database collections (Users, Courses, Lessons, Books, Categories, Announcements) and reseed with fresh premium data. Proceed?")) {
+                try {
+                  const res = await api.post('/admin/seed-db');
+                  alert(res.data.message || 'Seeding completed successfully!');
+                  window.location.reload();
+                } catch (err) {
+                  alert(err.response?.data?.message || 'Database seeding failed.');
+                }
+              }
+            }}
+            className="flex items-center justify-center gap-2 bg-brand-400 hover:bg-brand-300 text-slate-950 text-xs font-black py-2.5 px-4 rounded-xl border-2 border-slate-950 shadow-flat-sm transition active:translate-y-[1px]"
+          >
+            Reseed Premium Database
+          </button>
+        </div>
+      )}
+
       {/* SECTION: Payments & Access Grants */}
       {currentSection === 'payments' && (
         <div className="space-y-6">

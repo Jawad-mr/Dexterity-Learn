@@ -352,10 +352,10 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div className="flex overflow-x-auto no-scrollbar gap-3 pb-2 pt-1 scroll-smooth">
           {coursesData && coursesData.length > 0 ? (
-            coursesData.slice(0, 3).map((course) => (
-              <div key={course._id} className="bg-white dark:bg-slate-900 border-2 border-slate-950 rounded-2xl p-3.5 shadow-flat-sm flex flex-col justify-between space-y-3">
+            coursesData.map((course) => (
+              <div key={course._id} className="w-48 sm:w-56 shrink-0 bg-white dark:bg-slate-900 border-2 border-slate-950 dark:border-slate-800 rounded-2xl p-3 shadow-flat-sm flex flex-col justify-between space-y-3">
                 <div>
                   <div className="flex justify-between items-start">
                     <span className="text-[14px]">🏆</span>
@@ -363,29 +363,26 @@ export default function Home() {
                       {course.category || 'Course'}
                     </span>
                   </div>
-                  <h4 className="text-xs font-black text-slate-900 dark:text-white mt-2 leading-tight">{course.title}</h4>
+                  <h4 className="text-xs font-black text-slate-900 dark:text-white mt-2 leading-tight truncate">{course.title}</h4>
                   <p className="text-[9.5px] text-slate-500 font-semibold mt-1 line-clamp-2">{course.shortDescription || course.description}</p>
                 </div>
 
                 <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
                   <div>
-                    <span className="text-xs font-black text-emerald-600 dark:text-emerald-400">₹{course.certificatePrice || 499}</span>
+                    <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400">Claim via WA</span>
                   </div>
                   <button
-                    onClick={() => {
-                      const pName = encodeURIComponent(`${course.title} Certificate`);
-                      navigate(`/payment?type=certificate&productId=${course._id}&name=${pName}&price=${course.certificatePrice || 499}`);
-                    }}
+                    onClick={() => navigate(`/courses/${course.slug}`)}
                     className="bg-brand-400 hover:bg-brand-300 text-slate-950 text-[10px] font-black px-3 py-1.5 rounded-xl border border-slate-950 shadow-flat-sm transition active:translate-y-0.5"
                   >
-                    Get Certificate
+                    Start Course
                   </button>
                 </div>
               </div>
             ))
           ) : (
             [1, 2, 3].map((i) => (
-              <div key={i} className="h-32 bg-slate-100 dark:bg-slate-800 rounded-2xl animate-pulse" />
+              <div key={i} className="w-48 h-32 bg-slate-100 dark:bg-slate-800 rounded-2xl animate-pulse shrink-0" />
             ))
           )}
         </div>
