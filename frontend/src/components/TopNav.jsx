@@ -275,9 +275,35 @@ export default function TopNav() {
                           }}
                         >
                           <CheckCircle className={`h-4 w-4 mt-0.5 ${n.read ? 'text-slate-400' : 'text-brand-500'}`} />
-                          <div className="flex-1">
+                          <div className="flex-1 space-y-1">
                             <div className="text-xs font-semibold text-slate-700 dark:text-slate-200">{n.title}</div>
-                            <div className="text-[10px] text-slate-400 mt-0.5">{n.content}</div>
+                            <div className="text-[10px] text-slate-400 leading-snug">{n.content}</div>
+                            
+                            {(n.type === 'certificate' || n.title?.toLowerCase().includes('cert')) && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setShowNotifications(false);
+                                  navigate('/profile', { state: { activeTab: 'certificates' } });
+                                }}
+                                className="flex items-center gap-1 px-2 py-0.5 border border-slate-350 dark:border-slate-800 rounded bg-brand-400 text-slate-950 text-[9px] font-bold"
+                              >
+                                Go to Certificates
+                              </button>
+                            )}
+
+                            {(n.type === 'book' || n.title?.toLowerCase().includes('book')) && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setShowNotifications(false);
+                                  navigate('/profile', { state: { activeTab: 'books' } });
+                                }}
+                                className="flex items-center gap-1 px-2 py-0.5 border border-slate-350 dark:border-slate-800 rounded bg-brand-400 text-slate-955 text-[9px] font-bold"
+                              >
+                                Go to Shelf Books
+                              </button>
+                            )}
                           </div>
                           <button
                             onClick={(e) => deleteNotif(n._id, e)}
@@ -291,6 +317,14 @@ export default function TopNav() {
                       <div className="text-center text-xs text-slate-400 py-6">No notifications yet.</div>
                     )}
                   </div>
+                  
+                  <Link
+                    to="/notifications"
+                    onClick={() => setShowNotifications(false)}
+                    className="block text-center text-[10px] font-black text-brand-600 hover:underline pt-2 border-t border-slate-100 dark:border-slate-800 mt-2 select-none"
+                  >
+                    View all notifications
+                  </Link>
                 </div>
               )}
             </div>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { User, Award, Flame, Zap, Bookmark, BookOpen, GraduationCap, Clock, CheckCircle, ShieldCheck, Download, Settings, History, Camera, Loader2, Key } from 'lucide-react';
 import { useAuth, api } from '../context/AuthContext';
@@ -36,11 +36,17 @@ const getLevelInfo = (xp) => {
 export default function Dashboard() {
   const { user, refreshUser, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   useSEO('Student Dashboard', 'Track your streaks, certificates, unlocked books, bookmarks, and account configuration.');
 
+  const [activeTab, setActiveTab] = React.useState('courses'); // courses, books, certificates, bookmarks, settings
 
-  const [activeTab, setActiveTab] = useState('courses'); // courses, books, certificates, bookmarks, settings
+  React.useEffect(() => {
+    if (location.state?.activeTab) {
+      setActiveTab(location.state.activeTab);
+    }
+  }, [location.state]);
   const [imageFile, setImageFile] = useState(null);
   const [uploadingImage, setUploadingImage] = useState(false);
 

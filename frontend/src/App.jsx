@@ -24,6 +24,7 @@ import Dashboard from './pages/Dashboard';
 import PaymentPage from './pages/PaymentPage';
 import VerifyCertificate from './pages/VerifyCertificate';
 import PublicProfile from './pages/PublicProfile';
+import Notifications from './pages/Notifications';
 
 // Admin Vault Pages
 import AdminGate from './pages/AdminGate';
@@ -38,7 +39,7 @@ function NotFound() {
     <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-4 px-4 page-transition">
       <AlertCircle className="h-12 w-12 text-slate-300" />
       <h2 className="text-base font-bold text-slate-800 dark:text-slate-100">Syllabus Page Not Found</h2>
-      <p className="text-xs text-slate-500 max-w-xs">We could not resolve this course route segment. Make sure the pathway spelling is correct.</p>
+      <p className="text-xs text-slate-505 max-w-xs">We could not resolve this course route segment. Make sure the pathway spelling is correct.</p>
       <Link to="/courses" className="bg-brand-500 hover:bg-brand-650 text-white text-xs font-bold px-6 py-2.5 rounded-xl transition">
         Browse Free Courses
       </Link>
@@ -69,6 +70,7 @@ export default function App() {
             {/* Verification and Public Profiles */}
             <Route path="verify-certificate/:certId" element={<VerifyCertificate />} />
             <Route path="profile/:username" element={<PublicProfile />} />
+            <Route path="notifications" element={<Notifications />} />
             
             {/* Authentications */}
             <Route path="login" element={<Login />} />
