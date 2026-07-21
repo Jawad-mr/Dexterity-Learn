@@ -80,11 +80,18 @@ export default function Home() {
       gradient: 'from-rose-300 to-pink-400',
     },
     {
-      title: 'Earn Free Verified Certificates',
-      content: 'Complete any syllabus, clear the checkpoint quizzes, and download your formal graduation certificate. Zero paywalls, zero platform fees.',
+      title: 'Earn Verified Certificates',
+      content: 'Complete any syllabus, clear the checkpoint quizzes, and claim your official graduation certificate. Stand out to employers.',
       category: 'Certifications',
       image: 'https://images.unsplash.com/photo-1496171367470-9ed9a91ea931?w=400&q=80',
       gradient: 'from-amber-300 to-orange-400',
+    },
+    {
+      title: 'JSN Creative & Founder Message ❤️',
+      content: 'This premium version of Dexterity Learn is proudly built by JSN Creative and the founder Muhammad Jawad M R. One Love to all our student community!',
+      category: 'Founder Message',
+      image: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=400&q=80',
+      gradient: 'from-violet-300 to-fuchsia-400',
     },
     {
       title: 'PWA Offline Learning Manuals',
@@ -92,13 +99,6 @@ export default function Home() {
       category: 'Feature Launch',
       image: 'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=400&q=80',
       gradient: 'from-blue-300 to-indigo-400',
-    },
-    {
-      title: 'Built for Dreamers & Builders',
-      content: 'Whether you are writing your first line of JS or mastering database clustering, we are here to support your coding dreams. Let\'s build the future together!',
-      category: 'Community Goal',
-      image: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=400&q=80',
-      gradient: 'from-violet-300 to-fuchsia-400',
     }
   ];
 

@@ -168,3 +168,28 @@ export const getPaymentHistory = async (req, res, next) => {
     next(error);
   }
 };
+
+// @desc    Verify public certificate
+// @route   GET /api/payments/verify-certificate/:certId
+// @access  Public
+export const verifyCertificate = async (req, res, next) => {
+  const { certId } = req.params;
+
+  try {
+    const certificate = await Certificate.findOne({ certificateId: certId })
+      .populate('userId', 'username profileImage progress')
+      .populate('courseId', 'title category image estimatedTime difficulty');
+
+    if (!certificate) {
+      res.status(404);
+      return next(new Error('Certificate not found or ID is invalid.'));
+    }
+
+    res.json({
+      success: true,
+      certificate,
+    });
+  } catch (error) {
+    next(error);
+  }
+};

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Clock, ShieldAlert, Award, FileText, CheckCircle2, ChevronRight, Lock, CheckCircle, CreditCard, Sparkles, Loader2, Share2, MessageCircle } from 'lucide-react';
+import { Clock, ShieldAlert, Award, FileText, CheckCircle2, ChevronRight, Lock, CheckCircle, CreditCard, Sparkles, Loader2, Share2, MessageCircle, ShieldCheck } from 'lucide-react';
 import { api, useAuth } from '../context/AuthContext';
 
 export default function CourseSyllabus() {
@@ -28,20 +28,56 @@ export default function CourseSyllabus() {
   );
   const progress = enrollment ? enrollment.progress : 0;
 
+  // Eligibility checklist state
+  const [passedQuizzes, setPassedQuizzes] = useState(progress === 100);
+  const [examScore, setExamScore] = useState(progress === 100 ? 100 : 0);
+  const [capstoneSubmitted, setCapstoneSubmitted] = useState(progress === 100);
+  const [practicalSubmitted, setPracticalSubmitted] = useState(progress === 100);
+  const [githubUrl, setGithubUrl] = useState('');
+  
+  // Modal states
+  const [showExamModal, setShowExamModal] = useState(false);
+  const [showCapstoneModal, setShowCapstoneModal] = useState(false);
+  const [showAssignmentsModal, setShowAssignmentsModal] = useState(false);
+
+  // Exam Answers state
+  const [examAnswers, setExamAnswers] = useState({ q1: '', q2: '', q3: '' });
+  const [examResultMsg, setExamResultMsg] = useState('');
+
+  // Confetti trigger helper
+  const triggerConfetti = () => {
+    if (window.confetti) {
+      window.confetti({
+        particleCount: 150,
+        spread: 80,
+        origin: { y: 0.6 }
+      });
+    } else {
+      const script = document.createElement('script');
+      script.src = 'https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js';
+      script.onload = () => {
+        window.confetti && window.confetti({
+          particleCount: 150,
+          spread: 80,
+          origin: { y: 0.6 }
+        });
+      };
+      document.body.appendChild(script);
+    }
+  };
+
   // Check certificate status (locked, unpaid, paid)
   const [certData, setCertData] = useState(null);
 
   // Fetch certificate details if completed
-  useQuery({
+  const { data: certInfo } = useQuery({
     queryKey: ['certificate-status', course?._id, user?._id],
     queryFn: () => {
       if (!course?._id || !user?._id) return null;
       return api.get(`/auth/profile`).then((res) => {
-        // Find certificate in populated user model or query certificate directly
-        // Query server payments/certificates
-        const userCerts = res.data.user.enrolledCourses;
-        // Let's call a profile reload to sync certs
-        return null;
+        const certs = res.data.certificates || [];
+        const found = certs.find((c) => c.courseId === course._id || c.courseId?._id === course._id || c.courseId?.toString() === course._id.toString());
+        return found || null;
       });
     },
     enabled: !!course?._id && !!user?._id,
@@ -142,9 +178,251 @@ export default function CourseSyllabus() {
             Course Overview
           </h3>
           <p className="text-xs font-medium text-slate-655 dark:text-slate-300 leading-relaxed">
-            {course.description}
           </p>
         </div>
+
+        {/* Certificate Completion & Verifier Panel */}
+        {progress > 0 && (
+          <div className="bg-white dark:bg-slate-900 border-2 border-slate-950 dark:border-slate-800 rounded-3xl p-5 shadow-flat space-y-4">
+            
+            {/* Completion Banner */}
+            {progress === 100 && passedQuizzes && examScore >= 70 && capstoneSubmitted && practicalSubmitted ? (
+              <div className="flex items-center gap-3 bg-emerald-50 dark:bg-emerald-950/20 p-4 border border-emerald-400 rounded-3xl">
+                <div className="h-10 w-10 bg-emerald-100 dark:bg-emerald-950 text-emerald-600 rounded-xl flex items-center justify-center shrink-0 border-2 border-slate-950 dark:border-slate-800 shadow-flat-sm animate-bounce">
+                  <Award className="h-6 w-6" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-black text-emerald-800 dark:text-emerald-400">🎉 Congratulations! You completed the course!</h3>
+                  <p className="text-[11px] font-semibold text-emerald-700 dark:text-emerald-300">Every certification milestone has been satisfied. Preview and claim your verified credentials below.</p>
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center gap-3 bg-amber-50 dark:bg-amber-950/20 p-4 border border-amber-400 rounded-3xl">
+                <div className="h-10 w-10 bg-amber-100 dark:bg-amber-950 text-amber-600 rounded-xl flex items-center justify-center shrink-0 border-2 border-slate-950 dark:border-slate-800 shadow-flat-sm">
+                  <ShieldAlert className="h-6 w-6" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-black text-amber-800 dark:text-amber-400">⚠️ Eligibility Checkpoint</h3>
+                  <p className="text-[11px] font-semibold text-amber-700 dark:text-amber-300">Complete all learning syllabus, final exams, capstone, and assignments to unlock your certificate.</p>
+                </div>
+              </div>
+            )}
+
+            {/* Certificate Preview Card with Watermark or Blur */}
+            <div className="relative border-[6px] border-double border-amber-600 bg-amber-50/45 dark:bg-[#1f1a14] p-4 text-[#4a3b2b] dark:text-[#c4b3a0] rounded-2xl shadow-inner overflow-hidden select-none">
+              
+              {/* Confetti or Seal Watermark background */}
+              <div className="absolute right-4 top-4 opacity-5 pointer-events-none">
+                <Award className="h-32 w-32" />
+              </div>
+
+              {/* Watermark Diagonal Overlay */}
+              {(!certInfo || !certInfo.isPaid) && (
+                <div className="absolute inset-0 bg-slate-900/10 pointer-events-none z-10 flex items-center justify-center">
+                  <span className="text-red-500/20 text-4xl sm:text-5xl font-black uppercase tracking-[0.15em] select-none -rotate-12">
+                    Preview Mode
+                  </span>
+                </div>
+              )}
+
+              {/* Blurred Mask if not eligible */}
+              {!(progress === 100 && passedQuizzes && examScore >= 70 && capstoneSubmitted && practicalSubmitted) && (
+                <div className="absolute inset-0 bg-slate-950/50 backdrop-blur-sm pointer-events-none z-20 flex flex-col items-center justify-center p-4 text-center text-white">
+                  <Lock className="h-8 w-8 text-amber-400 mb-1" />
+                  <span className="text-xs font-black uppercase tracking-wider">🔒 Preview Locked</span>
+                  <span className="text-[9px] text-slate-350 max-w-xs mt-0.5 font-bold">Complete all eligibility tasks below to unlock certificate preview.</span>
+                </div>
+              )}
+
+              <div className="text-center space-y-3">
+                <span className="text-[8px] font-black tracking-[0.2em] uppercase text-amber-700 block">Official Certificate of Completion</span>
+                
+                <div className="space-y-0.5">
+                  <span className="text-[9px] italic text-slate-500 block">This is proudly awarded to</span>
+                  <span className="text-sm font-serif font-black block uppercase tracking-wide border-b border-amber-600/30 pb-0.5 max-w-[220px] mx-auto truncate text-slate-900 dark:text-white">
+                    {user?.username || 'Student Name'}
+                  </span>
+                </div>
+
+                <div className="space-y-0.5">
+                  <span className="text-[9px] italic text-slate-500 block">for successfully completing the syllabus requirements of</span>
+                  <span className="text-xs font-black text-slate-900 dark:text-slate-100 block leading-tight">{course.title}</span>
+                </div>
+
+                {/* Verifier credentials */}
+                <div className="flex justify-between items-end pt-3 text-[8px] text-slate-505 border-t border-amber-600/20">
+                  <div className="text-left space-y-0.5">
+                    <span className="block font-semibold text-[#4a3b2b] dark:text-[#c4b3a0] font-serif italic">Muhammad Jawad M R</span>
+                    <span className="text-[7.5px] uppercase tracking-wider block leading-none">Founder, Dexterity Learn</span>
+                  </div>
+                  
+                  {/* Verification QR Code */}
+                  <div className="bg-white p-1 rounded-md border border-slate-350 shrink-0">
+                    <img
+                      src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(`https://dexterity-learn.vercel.app/#/verify-certificate/${certInfo?.certificateId || 'locked'}`)}`}
+                      alt="Verification QR"
+                      className="w-10 h-10 object-contain"
+                    />
+                  </div>
+
+                  <div className="text-right space-y-0.5">
+                    <span>Issued Date</span>
+                    <span className="block font-semibold text-[#4a3b2b] dark:text-[#c4b3a0]">{certInfo?.issuedAt ? new Date(certInfo.issuedAt).toLocaleDateString() : new Date().toLocaleDateString()}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Certificate ID & Verification Info */}
+            <div className="bg-slate-50 dark:bg-slate-800/40 border border-slate-350 dark:border-slate-800 rounded-2xl p-3 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 text-xs">
+              <div className="space-y-0.5">
+                <span className="text-[9px] font-black uppercase text-slate-400 block tracking-wider">Secure Certificate ID</span>
+                <span className="font-mono font-bold text-slate-800 dark:text-slate-200">
+                  {certInfo?.isPaid ? certInfo.certificateId : '🔒 Locked (Unlock required)'}
+                </span>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  disabled={!certInfo?.isPaid}
+                  onClick={() => {
+                    if (certInfo?.isPaid) {
+                      const shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(`https://dexterity-learn.vercel.app/#/verify-certificate/${certInfo.certificateId}`)}`;
+                      window.open(shareUrl, '_blank');
+                    }
+                  }}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 border-2 rounded-xl text-[10.5px] font-black transition-all ${
+                    certInfo?.isPaid 
+                      ? 'bg-[#0a66c2] text-white border-transparent hover:bg-[#004182] active:translate-y-[1px]' 
+                      : 'bg-slate-100 dark:bg-slate-800 text-slate-400 border-slate-300 dark:border-slate-700 cursor-not-allowed'
+                  }`}
+                >
+                  <Share2 className="h-3.5 w-3.5" /> LinkedIn Share
+                </button>
+
+                <button
+                  disabled={!certInfo?.isPaid}
+                  onClick={() => {
+                    if (certInfo?.isPaid) {
+                      window.print();
+                    }
+                  }}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 border-2 rounded-xl text-[10.5px] font-black transition-all ${
+                    certInfo?.isPaid 
+                      ? 'bg-brand-400 hover:bg-brand-300 text-slate-950 border-slate-955 shadow-flat-sm active:translate-y-[1px] active:shadow-none' 
+                      : 'bg-slate-100 dark:bg-slate-800 text-slate-400 border-slate-300 dark:border-slate-700 cursor-not-allowed'
+                  }`}
+                >
+                  <Lock className="h-3.5 w-3.5" /> Download (PDF)
+                </button>
+              </div>
+            </div>
+
+            {/* Verification details button */}
+            {certInfo?.isPaid && (
+              <Link
+                to={`/verify-certificate/${certInfo.certificateId}`}
+                className="w-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-750 text-slate-950 dark:text-white font-black py-2 rounded-xl border-2 border-slate-950 dark:border-slate-800 shadow-flat-sm flex items-center justify-center gap-1.5 transition active:translate-y-[1px]"
+              >
+                <ShieldCheck className="h-4 w-4" /> Go to Verification Registry Page
+              </Link>
+            )}
+
+            {/* Eligibility Checklist card (Interactive tasks buttons) */}
+            <div className="bg-slate-50 dark:bg-slate-800/40 border-2 border-slate-950 dark:border-slate-800 rounded-3xl p-4 space-y-3">
+              <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider block">Syllabus Eligibility Checklist</span>
+              
+              <div className="space-y-2.5 text-xs">
+                {/* 1. Progress */}
+                <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/50 pb-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-base">{progress === 100 ? '✅' : '❌'}</span>
+                    <span className="font-bold">100% Course Completion</span>
+                  </div>
+                  <span className="font-black text-slate-500">{progress}%</span>
+                </div>
+
+                {/* 2. Quizzes */}
+                <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/50 pb-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-base">{passedQuizzes ? '✅' : '❌'}</span>
+                    <span className="font-bold">All Lesson Quizzes Passed</span>
+                  </div>
+                  {passedQuizzes ? (
+                    <span className="font-black text-emerald-600">Passed ✓</span>
+                  ) : (
+                    <button
+                      onClick={() => {
+                        setPassedQuizzes(true);
+                        triggerConfetti();
+                      }}
+                      className="bg-brand-400 hover:bg-brand-300 text-[10px] font-black px-2.5 py-1 border-2 border-slate-950 rounded-lg shadow-flat-xs text-slate-950"
+                    >
+                      Complete Quizzes
+                    </button>
+                  )}
+                </div>
+
+                {/* 3. Final Exam */}
+                <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/50 pb-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-base">{examScore >= 70 ? '✅' : '❌'}</span>
+                    <span className="font-bold">Final Assessment (Min 70%)</span>
+                  </div>
+                  {examScore >= 70 ? (
+                    <span className="font-black text-emerald-600">{examScore}% Passed ✓</span>
+                  ) : (
+                    <button
+                      onClick={() => setShowExamModal(true)}
+                      className="bg-brand-400 hover:bg-brand-300 text-[10px] font-black px-2.5 py-1 border-2 border-slate-950 rounded-lg shadow-flat-xs text-slate-950"
+                    >
+                      Take Final Exam
+                    </button>
+                  )}
+                </div>
+
+                {/* 4. Capstone Project */}
+                <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/50 pb-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-base">{capstoneSubmitted ? '✅' : '❌'}</span>
+                    <span className="font-bold">Capstone Project Submitted</span>
+                  </div>
+                  {capstoneSubmitted ? (
+                    <span className="font-black text-emerald-600">Submitted ✓</span>
+                  ) : (
+                    <button
+                      onClick={() => setShowCapstoneModal(true)}
+                      className="bg-brand-400 hover:bg-brand-300 text-[10px] font-black px-2.5 py-1 border-2 border-slate-950 rounded-lg shadow-flat-xs text-slate-950"
+                    >
+                      Submit Capstone
+                    </button>
+                  )}
+                </div>
+
+                {/* 5. Practical Exercises */}
+                <div className="flex items-center justify-between pb-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-base">{practicalSubmitted ? '✅' : '❌'}</span>
+                    <span className="font-bold">Practical Exercises Completed</span>
+                  </div>
+                  {practicalSubmitted ? (
+                    <span className="font-black text-emerald-600">Completed ✓</span>
+                  ) : (
+                    <button
+                      onClick={() => {
+                        setPracticalSubmitted(true);
+                        triggerConfetti();
+                      }}
+                      className="bg-brand-400 hover:bg-brand-300 text-[10px] font-black px-2.5 py-1 border-2 border-slate-950 rounded-lg shadow-flat-xs text-slate-950"
+                    >
+                      Mark Exercises Complete
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+
+          </div>
+        )}
 
         {/* Table of Contents / Lessons */}
         <div className="space-y-3">
@@ -234,6 +512,154 @@ export default function CourseSyllabus() {
           </div>
         </div>
       </div>
+
+      {/* Final Exam MCQ Modal */}
+      {showExamModal && (
+        <div className="fixed inset-0 z-50 bg-black/45 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-900 border-2 border-slate-950 dark:border-slate-800 rounded-3xl p-6 shadow-flat-lg max-w-md w-full space-y-4 text-xs text-slate-800 dark:text-slate-200">
+            <h3 className="text-sm font-black text-slate-950 dark:text-white uppercase tracking-wider">📝 Final Syllabus Assessment</h3>
+            <p className="text-[10px] text-slate-500 font-bold">Answer all questions correctly (minimum 70% requirement) to verify your syllabus credentials.</p>
+            
+            {examResultMsg && (
+              <p className="p-2 border border-red-500 bg-red-50 text-red-600 font-bold rounded-lg">{examResultMsg}</p>
+            )}
+
+            <div className="space-y-3">
+              <div className="space-y-1">
+                <p className="font-black text-slate-900 dark:text-slate-100">1. What does the LLM Temperature parameter control?</p>
+                <div className="space-y-1">
+                  {[
+                    { val: 'a', label: 'Maximum token count' },
+                    { val: 'b', label: 'Output randomness and creative styling' }
+                  ].map((opt) => (
+                    <label key={opt.val} className="flex items-center gap-2 p-1.5 border border-slate-200 dark:border-slate-800 rounded-xl cursor-pointer">
+                      <input
+                        type="radio"
+                        name="q1"
+                        checked={examAnswers.q1 === opt.val}
+                        onChange={() => setExamAnswers({ ...examAnswers, q1: opt.val })}
+                        className="accent-brand-400"
+                      />
+                      <span>{opt.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <p className="font-black text-slate-900 dark:text-slate-100">2. In Prompt Engineering, what is Chain-of-Thought reasoning?</p>
+                <div className="space-y-1">
+                  {[
+                    { val: 'a', label: 'Encoding tokens in hex format' },
+                    { val: 'b', label: 'Forcing the model to output its step-by-step logic before concluding' }
+                  ].map((opt) => (
+                    <label key={opt.val} className="flex items-center gap-2 p-1.5 border border-slate-200 dark:border-slate-800 rounded-xl cursor-pointer">
+                      <input
+                        type="radio"
+                        name="q2"
+                        checked={examAnswers.q2 === opt.val}
+                        onChange={() => setExamAnswers({ ...examAnswers, q2: opt.val })}
+                        className="accent-brand-400"
+                      />
+                      <span>{opt.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <p className="font-black text-slate-900 dark:text-slate-100">3. In a standard RAG system, what role does the Vector Database play?</p>
+                <div className="space-y-1">
+                  {[
+                    { val: 'a', label: 'Storing semantic document embeddings for context retrieval' },
+                    { val: 'b', label: 'Translating input commands to python code snippets' }
+                  ].map((opt) => (
+                    <label key={opt.val} className="flex items-center gap-2 p-1.5 border border-slate-200 dark:border-slate-800 rounded-xl cursor-pointer">
+                      <input
+                        type="radio"
+                        name="q3"
+                        checked={examAnswers.q3 === opt.val}
+                        onChange={() => setExamAnswers({ ...examAnswers, q3: opt.val })}
+                        className="accent-brand-400"
+                      />
+                      <span>{opt.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  if (examAnswers.q1 === 'b' && examAnswers.q2 === 'b' && examAnswers.q3 === 'a') {
+                    setExamScore(100);
+                    setShowExamModal(false);
+                    triggerConfetti();
+                  } else {
+                    setExamResultMsg('Some answers are incorrect. Review and try again!');
+                  }
+                }}
+                className="flex-1 bg-brand-400 hover:bg-brand-300 text-slate-955 font-black py-2 rounded-xl border-2 border-slate-950 shadow-flat-sm transition active:translate-y-[1px]"
+              >
+                Submit Exam Answers
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowExamModal(false)}
+                className="px-4 py-2 border-2 border-slate-955 rounded-xl font-bold bg-white dark:bg-slate-900"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Capstone Submission Modal */}
+      {showCapstoneModal && (
+        <div className="fixed inset-0 z-50 bg-black/45 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-900 border-2 border-slate-955 dark:border-slate-800 rounded-3xl p-6 shadow-flat-lg max-w-md w-full space-y-4 text-xs text-slate-800 dark:text-slate-200">
+            <h3 className="text-sm font-black text-slate-955 dark:text-white uppercase tracking-wider">💻 Submit Capstone Repository</h3>
+            <p className="text-[10px] text-slate-500 font-bold">Provide your public GitHub repository link for review and activation.</p>
+            
+            <input
+              type="url"
+              required
+              placeholder="e.g. https://github.com/username/capstone-project"
+              value={githubUrl}
+              onChange={(e) => setGithubUrl(e.target.value)}
+              className="w-full bg-slate-50 dark:bg-slate-850 py-2 px-3 border-2 border-slate-955 font-bold rounded-xl outline-none"
+            />
+
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  if (githubUrl.includes('github.5om') || githubUrl.includes('github.com/')) {
+                    setCapstoneSubmitted(true);
+                    setShowCapstoneModal(false);
+                    triggerConfetti();
+                  } else {
+                    alert('Please enter a valid GitHub repository URL!');
+                  }
+                }}
+                className="flex-1 bg-brand-400 hover:bg-brand-300 text-slate-955 font-black py-2 rounded-xl border-2 border-slate-955 shadow-flat-sm transition active:translate-y-[1px]"
+              >
+                Submit Project URL
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowCapstoneModal(false)}
+                className="px-4 py-2 border-2 border-slate-955 rounded-xl font-bold bg-white dark:bg-slate-900"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );

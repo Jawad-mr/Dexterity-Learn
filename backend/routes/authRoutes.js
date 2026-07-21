@@ -9,6 +9,7 @@ import {
   updateProfile,
   uploadProfileImage,
   changePassword,
+  getPublicProfile,
 } from '../controllers/authController.js';
 import { protect } from '../middleware/authMiddleware.js';
 import upload from '../middleware/uploadMiddleware.js';
@@ -26,6 +27,9 @@ router.post('/verify-email', verifyEmail);
 router.post('/login', loginValidator, login);
 router.post('/forgot-password', forgotPasswordValidator, forgotPassword);
 router.post('/reset-password', resetPasswordValidator, resetPassword);
+
+// Public lookup
+router.get('/public-profile/:username', getPublicProfile);
 
 // Protected routes
 router.get('/profile', protect, getProfile);

@@ -513,9 +513,15 @@ export const adminSeedDatabase = async (req, res, next) => {
         active: true,
       },
       {
-        title: 'Earn Industry-Recognized Credentials',
-        content: 'Finish 100% of any course syllabus, complete quizzes, and claim your official gold certificate via WhatsApp payment gateway.',
+        title: 'Earn Verified Credentials',
+        content: 'Finish 100% of any course syllabus, complete quizzes, and claim your official graduation certificate via WhatsApp verification.',
         category: 'General',
+        active: true,
+      },
+      {
+        title: 'JSN Creative & Founder Message ❤️',
+        content: 'This premium version of Dexterity Learn is proudly built by JSN Creative and the founder Muhammad Jawad M R. One Love to all our student community!',
+        category: 'Founder Message',
         active: true,
       },
     ]);

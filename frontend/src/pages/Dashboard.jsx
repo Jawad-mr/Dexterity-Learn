@@ -15,6 +15,24 @@ const getBookColor = (id) => {
   return colors[Math.abs(hash) % colors.length];
 };
 
+const learnerLevels = [
+  { name: 'Bronze Learner', minXp: 0 },
+  { name: 'Silver Learner', minXp: 201 },
+  { name: 'Gold Learner', minXp: 501 },
+  { name: 'Platinum Learner', minXp: 1001 },
+  { name: 'Diamond Learner', minXp: 2501 }
+];
+
+const getLevelInfo = (xp) => {
+  let matched = learnerLevels[0];
+  for (const lvl of learnerLevels) {
+    if (xp >= lvl.minXp) {
+      matched = lvl;
+    }
+  }
+  return matched;
+};
+
 export default function Dashboard() {
   const { user, refreshUser, logout } = useAuth();
   const navigate = useNavigate();
@@ -34,6 +52,8 @@ export default function Dashboard() {
 
   // Certificate Modal State
   const [selectedCert, setSelectedCert] = useState(null);
+  const [certSearch, setCertSearch] = useState('');
+  const [certFilter, setCertFilter] = useState('all'); // all, unlocked, pending
 
   // Fetch payment history
   const { data: payments } = useQuery({
@@ -45,10 +65,7 @@ export default function Dashboard() {
   // Fetch user certificates (unlocked certificates)
   const { data: certificates } = useQuery({
     queryKey: ['user-certificates'],
-    queryFn: () => api.get('/auth/profile').then((res) => {
-      // Find certificates
-      return [];
-    }),
+    queryFn: () => api.get('/auth/profile').then((res) => res.data.certificates || []),
     enabled: !!user,
   });
 
@@ -188,10 +205,12 @@ export default function Dashboard() {
       {/* Right Column: Navigation Tabs & Tab Panels */}
       <div className="space-y-6 lg:col-span-3">
         {/* Tab select Navigation (Bottom border style) */}
-        <div className="flex border-b border-slate-200 dark:border-slate-800">
+        <div className="flex border-b border-slate-200 dark:border-slate-800 overflow-x-auto no-scrollbar">
         {[
           { id: 'courses', label: 'My Courses', icon: GraduationCap },
           { id: 'books', label: 'My Shelf', icon: BookOpen },
+          { id: 'certificates', label: 'Certificates', icon: Award },
+          { id: 'gamification', label: 'Learner Stats', icon: Flame },
           { id: 'bookmarks', label: 'Bookmarks', icon: Bookmark },
           { id: 'payments', label: 'Payments', icon: History },
           { id: 'settings', label: 'Settings', icon: Settings },
@@ -307,6 +326,244 @@ export default function Dashboard() {
                 </Link>
               </div>
             )}
+          </div>
+        )}
+
+        {/* TAB 3: Certificates Showcase & Store */}
+        {activeTab === 'certificates' && (
+          <div className="space-y-4">
+            
+            {/* Stats Overview */}
+            <div className="grid grid-cols-2 gap-3 select-none">
+              <div className="bg-white dark:bg-slate-900 border-2 border-slate-950 dark:border-slate-800 rounded-3xl p-4 shadow-flat-sm text-center">
+                <span className="text-[10px] font-black uppercase text-slate-400 block font-bold">Certificates Earned</span>
+                <span className="text-xl font-black text-slate-905 dark:text-white mt-1 block">
+                  {certificates?.length || 0}
+                </span>
+              </div>
+              <div className="bg-white dark:bg-slate-900 border-2 border-slate-950 dark:border-slate-800 rounded-3xl p-4 shadow-flat-sm text-center">
+                <span className="text-[10px] font-black uppercase text-slate-400 block font-bold">Pending Unlock</span>
+                <span className="text-xl font-black text-amber-500 mt-1 block">
+                  {Math.max(0, completedCourses.length - (certificates?.length || 0))}
+                </span>
+              </div>
+            </div>
+
+            {/* Search & Filters */}
+            <div className="flex flex-col sm:flex-row gap-2 select-none">
+              <input
+                type="text"
+                placeholder="Search certificate..."
+                value={certSearch}
+                onChange={(e) => setCertSearch(e.target.value)}
+                className="flex-1 bg-white dark:bg-slate-900 border-2 border-slate-950 dark:border-slate-800 px-3 py-1.5 rounded-xl text-xs outline-none text-slate-800 dark:text-slate-100 font-bold"
+              />
+              <select
+                value={certFilter}
+                onChange={(e) => setCertFilter(e.target.value)}
+                className="bg-white dark:bg-slate-900 border-2 border-slate-950 dark:border-slate-800 px-3 py-1.5 rounded-xl text-xs outline-none font-black"
+              >
+                <option value="all">All Status</option>
+                <option value="unlocked">Unlocked</option>
+                <option value="pending">Pending</option>
+              </select>
+            </div>
+
+            {/* Certificate Cards Grid */}
+            <div className="grid grid-cols-1 gap-3">
+              {/* Unlocked / Paid Certificates */}
+              {certificates
+                ?.filter((c) => c.courseTitle?.toLowerCase().includes(certSearch.toLowerCase()))
+                ?.filter((c) => certFilter === 'all' || certFilter === 'unlocked')
+                ?.map((cert) => (
+                  <div
+                    key={cert._id}
+                    className="bg-white dark:bg-slate-900 border-2 border-slate-950 dark:border-slate-800 rounded-3xl p-4 shadow-flat flex flex-col justify-between gap-3 text-xs"
+                  >
+                    <div>
+                      <div className="flex justify-between items-start select-none">
+                        <span className="text-[8px] font-black uppercase tracking-wider bg-brand-400 text-slate-950 px-2 py-0.5 border border-slate-950 rounded-full shadow-flat-sm">
+                          Verified Credential
+                        </span>
+                        <span className="text-[10px] text-slate-400 font-bold">{new Date(cert.issuedAt).toLocaleDateString()}</span>
+                      </div>
+                      <h4 className="text-sm font-black text-slate-950 dark:text-white mt-1.5">{cert.courseTitle}</h4>
+                      <p className="text-[9px] font-mono text-slate-500 mt-1 uppercase select-all font-bold">ID: {cert.certificateId}</p>
+                    </div>
+
+                    <div className="flex gap-2 border-t border-slate-100 dark:border-slate-800 pt-2.5">
+                      <Link
+                        to={`/verify-certificate/${cert.certificateId}`}
+                        className="flex-1 bg-slate-50 dark:bg-slate-800 border-2 border-slate-950 dark:border-slate-700 py-1.5 rounded-xl text-center text-[10.5px] font-black text-slate-900 dark:text-white shadow-flat-xs active:translate-y-[1px] select-none"
+                      >
+                        Verify Public Link
+                      </Link>
+                      <button
+                        onClick={() => navigate(`/courses/${cert.courseId?.slug || 'prompt-engineering'}`)}
+                        className="flex-1 bg-brand-400 hover:bg-brand-300 text-slate-955 font-black py-1.5 border-2 border-slate-950 rounded-xl text-center text-[10.5px] shadow-flat-xs active:translate-y-[1px] select-none"
+                      >
+                        View & Print
+                      </button>
+                    </div>
+                  </div>
+                ))}
+
+              {/* Pending / Completed but Unpaid Certificates */}
+              {completedCourses
+                ?.filter((c) => c.courseId?.title?.toLowerCase().includes(certSearch.toLowerCase()))
+                ?.filter((c) => !certificates?.some((cert) => cert.courseId === c.courseId?._id || cert.courseId?._id === c.courseId?._id))
+                ?.filter((c) => certFilter === 'all' || certFilter === 'pending')
+                ?.map((c) => (
+                  <div
+                    key={c.courseId?._id}
+                    className="bg-white dark:bg-slate-900 border-2 border-slate-950 dark:border-slate-800 rounded-3xl p-4 shadow-flat flex flex-col justify-between gap-3 text-xs opacity-90"
+                  >
+                    <div>
+                      <div className="flex justify-between items-start select-none">
+                        <span className="text-[8px] font-black uppercase tracking-wider bg-slate-100 text-slate-500 px-2 py-0.5 border border-slate-350 rounded-full">
+                          Locked Pending Unlock
+                        </span>
+                        <span className="text-[10px] text-amber-500 font-black">100% Completed</span>
+                      </div>
+                      <h4 className="text-sm font-black text-slate-900 dark:text-slate-200 mt-1.5">{c.courseId?.title}</h4>
+                      <p className="text-[9.5px] text-slate-500 mt-1 font-bold">Complete final checkpoints & assignments to verify authenticity.</p>
+                    </div>
+
+                    <div className="flex gap-2 border-t border-slate-100 dark:border-slate-800 pt-2.5">
+                      <Link
+                        to={`/courses/${c.courseId?.slug}`}
+                        className="flex-1 bg-brand-400 hover:bg-brand-300 text-slate-955 text-center py-2 font-black border-2 border-slate-950 rounded-xl text-[10.5px] shadow-flat-sm active:translate-y-[1px] select-none"
+                      >
+                        Claim & Unlock Certificate
+                      </Link>
+                    </div>
+                  </div>
+                ))}
+            </div>
+
+            {/* Certificate Store Benefits Card */}
+            <div className="bg-slate-50 dark:bg-slate-800/40 border-2 border-slate-950 dark:border-slate-800 rounded-3xl p-5 shadow-flat space-y-4">
+              <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider block select-none">Dexterity Verified Certification Benefits</span>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                <div className="space-y-1">
+                  <h5 className="font-black text-slate-850 dark:text-white">✓ Career Enhancement</h5>
+                  <p className="text-[10.5px] text-slate-500 dark:text-slate-400">Share your verified credential URL on your Resume, CV, and Portfolio to get noticed by recruiters.</p>
+                </div>
+                <div className="space-y-1">
+                  <h5 className="font-black text-slate-850 dark:text-white">✓ LinkedIn Integration</h5>
+                  <p className="text-[10.5px] text-slate-500 dark:text-slate-400">Add to your LinkedIn profile Licenses & Certifications section in one click.</p>
+                </div>
+                <div className="space-y-1">
+                  <h5 className="font-black text-slate-850 dark:text-white">✓ Public Registry</h5>
+                  <p className="text-[10.5px] text-slate-500 dark:text-slate-400">A permanent secure verification page with QR code lookup for anybody to check authentic validity.</p>
+                </div>
+                <div className="space-y-1">
+                  <h5 className="font-black text-slate-850 dark:text-white">✓ High-res Printouts</h5>
+                  <p className="text-[10.5px] text-slate-500 dark:text-slate-400">Print in high-resolution double-border gold credentials with security seal and instructor signature.</p>
+                </div>
+              </div>
+            </div>
+
+            {/* FAQ section */}
+            <div className="bg-white dark:bg-slate-900 border-2 border-slate-950 dark:border-slate-800 rounded-3xl p-5 shadow-flat space-y-3">
+              <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider block select-none">Frequently Asked Questions</span>
+              <div className="space-y-2 text-xs">
+                <div className="space-y-0.5">
+                  <p className="font-black text-slate-900 dark:text-slate-100">How long is the certificate valid?</p>
+                  <p className="text-[10.5px] text-slate-500">Every Dexterity Learn certificate has lifetime validity and public hosting. There are no recurring fees.</p>
+                </div>
+                <div className="space-y-0.5">
+                  <p className="font-black text-slate-900 dark:text-slate-100">Is the payment secure?</p>
+                  <p className="text-[10.5px] text-slate-500">Yes! We route checkout orders through secure UPI verification channels via WhatsApp activation. Your access is instantly updated.</p>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        )}
+
+        {/* TAB 4: Learner Stats & Gamification */}
+        {activeTab === 'gamification' && (
+          <div className="space-y-4">
+            
+            {/* Level Rank Card */}
+            <div className="bg-white dark:bg-slate-900 border-2 border-slate-950 dark:border-slate-800 rounded-3xl p-5 shadow-flat space-y-4">
+              <div className="flex justify-between items-center select-none">
+                <div>
+                  <span className="text-[9px] font-black uppercase text-slate-400">Learner Rank Level</span>
+                  <h3 className="text-sm font-black text-slate-955 dark:text-white mt-0.5 flex items-center gap-1.5">
+                    🏆 {getLevelInfo(user.progress?.xp || 0).name}
+                  </h3>
+                </div>
+                <div className="h-10 w-10 rounded-full border-2 border-slate-950 bg-slate-100 flex items-center justify-center font-bold text-lg shadow-flat-sm">
+                  {user.progress?.xp >= 2501 ? '💎' : user.progress?.xp >= 1001 ? '🧬' : user.progress?.xp >= 501 ? '🥇' : user.progress?.xp >= 201 ? '🥈' : '🥉'}
+                </div>
+              </div>
+
+              {/* Progress to next level */}
+              <div>
+                <div className="flex justify-between text-[10px] font-black text-slate-455 mb-1.5">
+                  <span>XP PROGRESS</span>
+                  <span>{user.progress?.xp || 0} XP</span>
+                </div>
+                <div className="h-3 w-full bg-slate-100 dark:bg-slate-800 border-2 border-slate-950 dark:border-slate-800 rounded-full overflow-hidden">
+                  <div className="h-full bg-brand-400 border-r border-slate-950" style={{ width: `${Math.min(100, ((user.progress?.xp || 0) / 3000) * 100)}%` }} />
+                </div>
+                <span className="text-[8.5px] text-slate-400 block mt-1.5 font-bold">Earn XP by completing lessons (+10 XP) and enrolling in new courses (+20 XP). Reach 2500 XP to unlock Diamond Learner status.</span>
+              </div>
+            </div>
+
+            {/* Streaks & Milestones */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 select-none">
+              
+              {/* Daily Streak Index */}
+              <div className="bg-white dark:bg-slate-900 border-2 border-slate-950 dark:border-slate-800 rounded-3xl p-4 shadow-flat-sm flex flex-col justify-between">
+                <div>
+                  <span className="text-[9px] font-black uppercase text-slate-400 tracking-wide block">Active Daily Streak</span>
+                  <h4 className="text-xl font-black text-orange-500 mt-1 flex items-center gap-1.5">
+                    <Flame className="h-6 w-6 text-orange-500 fill-orange-500 animate-pulse" /> {user.progress?.streak || 0} Days
+                  </h4>
+                </div>
+                <p className="text-[9.5px] text-slate-500 dark:text-slate-400 leading-normal mt-2">Log in daily to keep your learning streak burning. Streak resets if inactive for more than 24 hours.</p>
+              </div>
+
+              {/* Level milestones */}
+              <div className="bg-white dark:bg-slate-900 border-2 border-slate-950 dark:border-slate-800 rounded-3xl p-4 shadow-flat-sm space-y-2">
+                <span className="text-[9px] font-black uppercase text-slate-400 tracking-wide block">Milestones Unlocked</span>
+                <div className="space-y-1.5 text-[10px]">
+                  <div className="flex items-center justify-between border-b border-slate-50 dark:border-slate-800/40 pb-1">
+                    <span className="font-bold">Bronze Status (0 XP)</span>
+                    <span className="text-emerald-600 font-black">✓ Unlocked</span>
+                  </div>
+                  <div className="flex items-center justify-between border-b border-slate-50 dark:border-slate-800/40 pb-1">
+                    <span className="font-bold">Silver Status (200 XP)</span>
+                    <span>{user.progress?.xp >= 201 ? <span className="text-emerald-600 font-black">✓ Unlocked</span> : <span className="text-slate-400">Locked</span>}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold">Gold Status (500 XP)</span>
+                    <span>{user.progress?.xp >= 501 ? <span className="text-emerald-600 font-black">✓ Unlocked</span> : <span className="text-slate-400">Locked</span>}</span>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            {/* Public profile sharing action */}
+            <div className="bg-brand-100 dark:bg-brand-950/20 border-2 border-brand-400 rounded-3xl p-4 flex justify-between items-center select-none">
+              <div className="space-y-0.5">
+                <h4 className="text-xs font-black text-slate-955 dark:text-white">Professional Student Profile</h4>
+                <p className="text-[10px] text-slate-505 dark:text-slate-400 font-bold">Publish your achievements and verified credentials to the public.</p>
+              </div>
+
+              <Link
+                to={`/profile/${user.username}`}
+                className="bg-brand-400 hover:bg-brand-300 text-slate-955 text-[11px] font-black px-4 py-2 border-2 border-slate-950 rounded-xl shadow-flat-sm active:translate-y-[1px] active:shadow-none transition shrink-0"
+              >
+                View Public Profile
+              </Link>
+            </div>
+
           </div>
         )}
 

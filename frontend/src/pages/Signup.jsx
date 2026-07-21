@@ -35,10 +35,10 @@ export default function Signup() {
       {/* Left Panel: App Showcase (Hidden on Mobile) */}
       <div 
         className="hidden lg:flex lg:col-span-2 text-white flex-col justify-between p-10 relative border-r-2 border-slate-950 overflow-hidden"
-        style={{ backgroundImage: "url('https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&q=80')", backgroundSize: 'cover', backgroundPosition: 'center' }}
+        style={{ backgroundImage: "url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&q=80')", backgroundSize: 'cover', backgroundPosition: 'center' }}
       >
         {/* Dark overlay backdrop to make cards pop */}
-        <div className="absolute inset-0 bg-slate-950/70 pointer-events-none" />
+        <div className="absolute inset-0 bg-slate-950/40 pointer-events-none" />
         
         {/* Brand Header */}
         <div className="relative z-10">

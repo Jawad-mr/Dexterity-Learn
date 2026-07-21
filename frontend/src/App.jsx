@@ -22,6 +22,8 @@ import BooksCatalog from './pages/BooksCatalog';
 import BookReader from './pages/BookReader';
 import Dashboard from './pages/Dashboard';
 import PaymentPage from './pages/PaymentPage';
+import VerifyCertificate from './pages/VerifyCertificate';
+import PublicProfile from './pages/PublicProfile';
 
 // Admin Vault Pages
 import AdminGate from './pages/AdminGate';
@@ -63,6 +65,10 @@ export default function App() {
             {/* Profile Dashboard & Payments */}
             <Route path="profile" element={<Dashboard />} />
             <Route path="payment" element={<PaymentPage />} />
+            
+            {/* Verification and Public Profiles */}
+            <Route path="verify-certificate/:certId" element={<VerifyCertificate />} />
+            <Route path="profile/:username" element={<PublicProfile />} />
             
             {/* Authentications */}
             <Route path="login" element={<Login />} />

@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 import fs from 'fs';
 import User from '../models/User.js';
+import Certificate from '../models/Certificate.js';
 import generateToken from '../utils/generateToken.js';
 import { transporter } from '../config/nodemailer.js';
 import { cloudinary, isConfigured as isCloudinaryConfigured } from '../config/cloudinary.js';
@@ -214,9 +215,25 @@ export const getProfile = async (req, res, next) => {
       return next(new Error('User not found'));
     }
 
+    // Calculate level rank based on current XP
+    const xp = user.progress?.xp || 0;
+    let computedLevel = 'Bronze';
+    if (xp >= 2501) computedLevel = 'Diamond';
+    else if (xp >= 1001) computedLevel = 'Platinum';
+    else if (xp >= 501) computedLevel = 'Gold';
+    else if (xp >= 201) computedLevel = 'Silver';
+
+    if (user.progress && user.progress.level !== computedLevel) {
+      user.progress.level = computedLevel;
+      await user.save();
+    }
+
+    const certificates = await Certificate.find({ userId: req.user._id });
+
     res.json({
       success: true,
       user,
+      certificates,
     });
   } catch (error) {
     next(error);
@@ -345,6 +362,46 @@ export const changePassword = async (req, res, next) => {
     res.json({
       success: true,
       message: 'Password changed successfully!',
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Get public profile of a user by username
+// @route   GET /api/auth/public-profile/:username
+// @access  Public
+export const getPublicProfile = async (req, res, next) => {
+  const { username } = req.params;
+
+  try {
+    const user = await User.findOne({ username })
+      .populate('enrolledCourses.courseId')
+      .populate('unlockedBooks');
+
+    if (!user) {
+      res.status(404);
+      return next(new Error('Student profile not found'));
+    }
+
+    // Find verified certificates for this user
+    const certificates = await Certificate.find({ userId: user._id, isPaid: true });
+
+    res.json({
+      success: true,
+      profile: {
+        username: user.username,
+        profileImage: user.profileImage,
+        progress: user.progress,
+        badges: user.progress?.badges || [],
+        enrolledCourses: user.enrolledCourses.map((c) => ({
+          courseId: c.courseId,
+          progress: c.progress,
+        })),
+        unlockedBooks: user.unlockedBooks,
+        createdAt: user.createdAt,
+      },
+      certificates,
     });
   } catch (error) {
     next(error);

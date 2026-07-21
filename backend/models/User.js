@@ -80,6 +80,14 @@ const userSchema = new mongoose.Schema(
         type: Number,
         default: 0,
       },
+      learningHours: {
+        type: Number,
+        default: 0,
+      },
+      level: {
+        type: String,
+        default: 'Bronze',
+      },
       lastActive: {
         type: Date,
         default: Date.now,
