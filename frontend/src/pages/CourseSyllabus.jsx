@@ -66,6 +66,33 @@ export default function CourseSyllabus() {
     }
   };
 
+  const downloadCertificatePDF = () => {
+    const element = document.getElementById('certificate-preview-card');
+    if (!element) return;
+
+    const runDownload = () => {
+      const opt = {
+        margin: 0.15,
+        filename: `${course?.title || 'Course'}_Certificate.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 3, useCORS: true, logging: false },
+        jsPDF: { unit: 'in', format: 'a4', orientation: 'landscape' }
+      };
+      window.html2pdf().from(element).set(opt).save();
+    };
+
+    if (window.html2pdf) {
+      runDownload();
+    } else {
+      const script = document.createElement('script');
+      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+      script.onload = () => {
+        runDownload();
+      };
+      document.body.appendChild(script);
+    }
+  };
+
   // Check certificate status (locked, unpaid, paid)
   const [certData, setCertData] = useState(null);
 
@@ -207,10 +234,8 @@ export default function CourseSyllabus() {
                   <p className="text-[11px] font-semibold text-amber-700 dark:text-amber-300">Complete all learning syllabus, final exams, capstone, and assignments to unlock your certificate.</p>
                 </div>
               </div>
-            )}
-
-            {/* Certificate Preview Card with Watermark or Blur */}
-            <div className="relative border-[6px] border-double border-amber-600 bg-amber-50/45 dark:bg-[#1f1a14] p-4 text-[#4a3b2b] dark:text-[#c4b3a0] rounded-2xl shadow-inner overflow-hidden select-none">
+                     {/* Certificate Preview Card with Watermark or Blur */}
+            <div id="certificate-preview-card" className="relative w-full max-w-[620px] mx-auto aspect-[1.414] border-[6px] border-double border-amber-600 bg-amber-50/45 dark:bg-[#1f1a14] p-6 text-[#4a3b2b] dark:text-[#c4b3a0] rounded-2xl shadow-inner overflow-hidden select-none flex flex-col justify-between text-center">
               
               {/* Confetti or Seal Watermark background */}
               <div className="absolute right-4 top-4 opacity-5 pointer-events-none">
@@ -235,41 +260,45 @@ export default function CourseSyllabus() {
                 </div>
               )}
 
-              <div className="text-center space-y-3">
+              {/* Top Section */}
+              <div className="space-y-1">
                 <span className="text-[8px] font-black tracking-[0.2em] uppercase text-amber-700 block">Official Certificate of Completion</span>
+                <div className="h-0.5 w-12 bg-amber-600/30 mx-auto" />
+              </div>
+
+              {/* Recipient Section */}
+              <div className="space-y-1">
+                <span className="text-[9px] italic text-slate-500 block font-serif">This is proudly awarded to</span>
+                <span className="text-base font-serif font-black block uppercase tracking-wide border-b border-amber-600/30 pb-0.5 max-w-[240px] mx-auto truncate text-slate-900 dark:text-white">
+                  {user?.username || 'Student Name'}
+                </span>
+              </div>
+
+              {/* Course Title Section */}
+              <div className="space-y-1">
+                <span className="text-[9px] italic text-slate-500 block font-serif font-bold">for successfully completing the syllabus requirements of</span>
+                <span className="text-xs font-black text-slate-900 dark:text-slate-100 block leading-tight max-w-[400px] mx-auto">{course.title}</span>
+              </div>
+
+              {/* Verifier credentials & Signature / QR */}
+              <div className="flex justify-between items-end pt-3 text-[8px] text-slate-550 border-t border-amber-600/20">
+                <div className="text-left space-y-0.5">
+                  <span className="block font-semibold text-[#4a3b2b] dark:text-[#c4b3a0] font-serif italic text-[10px]">Muhammad Jawad M R</span>
+                  <span className="text-[7.5px] uppercase tracking-wider block leading-none">Founder, Dexterity Learn</span>
+                </div>
                 
-                <div className="space-y-0.5">
-                  <span className="text-[9px] italic text-slate-500 block">This is proudly awarded to</span>
-                  <span className="text-sm font-serif font-black block uppercase tracking-wide border-b border-amber-600/30 pb-0.5 max-w-[220px] mx-auto truncate text-slate-900 dark:text-white">
-                    {user?.username || 'Student Name'}
-                  </span>
+                {/* Verification QR Code */}
+                <div className="bg-white p-1 rounded-md border border-slate-300 shrink-0">
+                  <img
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(`https://dexterity-learn.vercel.app/#/verify-certificate/${certInfo?.certificateId || 'locked'}`)}`}
+                    alt="Verification QR"
+                    className="w-10 h-10 object-contain"
+                  />
                 </div>
 
-                <div className="space-y-0.5">
-                  <span className="text-[9px] italic text-slate-500 block">for successfully completing the syllabus requirements of</span>
-                  <span className="text-xs font-black text-slate-900 dark:text-slate-100 block leading-tight">{course.title}</span>
-                </div>
-
-                {/* Verifier credentials */}
-                <div className="flex justify-between items-end pt-3 text-[8px] text-slate-505 border-t border-amber-600/20">
-                  <div className="text-left space-y-0.5">
-                    <span className="block font-semibold text-[#4a3b2b] dark:text-[#c4b3a0] font-serif italic">Muhammad Jawad M R</span>
-                    <span className="text-[7.5px] uppercase tracking-wider block leading-none">Founder, Dexterity Learn</span>
-                  </div>
-                  
-                  {/* Verification QR Code */}
-                  <div className="bg-white p-1 rounded-md border border-slate-350 shrink-0">
-                    <img
-                      src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(`https://dexterity-learn.vercel.app/#/verify-certificate/${certInfo?.certificateId || 'locked'}`)}`}
-                      alt="Verification QR"
-                      className="w-10 h-10 object-contain"
-                    />
-                  </div>
-
-                  <div className="text-right space-y-0.5">
-                    <span>Issued Date</span>
-                    <span className="block font-semibold text-[#4a3b2b] dark:text-[#c4b3a0]">{certInfo?.issuedAt ? new Date(certInfo.issuedAt).toLocaleDateString() : new Date().toLocaleDateString()}</span>
-                  </div>
+                <div className="text-right space-y-0.5">
+                  <span>Issued Date</span>
+                  <span className="block font-semibold text-[#4a3b2b] dark:text-[#c4b3a0]">{certInfo?.issuedAt ? new Date(certInfo.issuedAt).toLocaleDateString() : new Date().toLocaleDateString()}</span>
                 </div>
               </div>
             </div>
@@ -304,12 +333,12 @@ export default function CourseSyllabus() {
                   disabled={!certInfo?.isPaid}
                   onClick={() => {
                     if (certInfo?.isPaid) {
-                      window.print();
+                      downloadCertificatePDF();
                     }
                   }}
                   className={`flex items-center gap-1.5 px-3 py-1.5 border-2 rounded-xl text-[10.5px] font-black transition-all ${
                     certInfo?.isPaid 
-                      ? 'bg-brand-400 hover:bg-brand-300 text-slate-950 border-slate-955 shadow-flat-sm active:translate-y-[1px] active:shadow-none' 
+                      ? 'bg-brand-400 hover:bg-brand-300 text-slate-955 border-slate-955 shadow-flat-sm active:translate-y-[1px] active:shadow-none' 
                       : 'bg-slate-100 dark:bg-slate-800 text-slate-400 border-slate-300 dark:border-slate-700 cursor-not-allowed'
                   }`}
                 >
