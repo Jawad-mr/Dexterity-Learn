@@ -178,15 +178,16 @@ export default function CourseSyllabus() {
             Course Overview
           </h3>
           <p className="text-xs font-medium text-slate-655 dark:text-slate-300 leading-relaxed">
+            {course.description}
           </p>
         </div>
 
         {/* Certificate Completion & Verifier Panel */}
-        {progress > 0 && (
+        {(enrollment || certInfo) && (
           <div className="bg-white dark:bg-slate-900 border-2 border-slate-950 dark:border-slate-800 rounded-3xl p-5 shadow-flat space-y-4">
             
             {/* Completion Banner */}
-            {progress === 100 && passedQuizzes && examScore >= 70 && capstoneSubmitted && practicalSubmitted ? (
+            {certInfo?.isPaid || (progress === 100 && passedQuizzes && examScore >= 70 && capstoneSubmitted && practicalSubmitted) ? (
               <div className="flex items-center gap-3 bg-emerald-50 dark:bg-emerald-950/20 p-4 border border-emerald-400 rounded-3xl">
                 <div className="h-10 w-10 bg-emerald-100 dark:bg-emerald-950 text-emerald-600 rounded-xl flex items-center justify-center shrink-0 border-2 border-slate-950 dark:border-slate-800 shadow-flat-sm animate-bounce">
                   <Award className="h-6 w-6" />
@@ -225,8 +226,8 @@ export default function CourseSyllabus() {
                 </div>
               )}
 
-              {/* Blurred Mask if not eligible */}
-              {!(progress === 100 && passedQuizzes && examScore >= 70 && capstoneSubmitted && practicalSubmitted) && (
+              {/* Blurred Mask if not eligible and unpaid */}
+              {!certInfo?.isPaid && !(progress === 100 && passedQuizzes && examScore >= 70 && capstoneSubmitted && practicalSubmitted) && (
                 <div className="absolute inset-0 bg-slate-950/50 backdrop-blur-sm pointer-events-none z-20 flex flex-col items-center justify-center p-4 text-center text-white">
                   <Lock className="h-8 w-8 text-amber-400 mb-1" />
                   <span className="text-xs font-black uppercase tracking-wider">🔒 Preview Locked</span>
@@ -486,31 +487,33 @@ export default function CourseSyllabus() {
         )}
 
         {/* Certificate Claim Checkout Spot */}
-        <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 border-2 border-slate-950 dark:border-slate-800 shadow-flat space-y-4 text-slate-900 dark:text-white">
-          <div className="flex items-start gap-3">
-            <div className="h-10 w-10 bg-brand-100 dark:bg-brand-950/40 text-brand-600 dark:text-brand-455 rounded-xl flex items-center justify-center shrink-0 border-2 border-slate-950 dark:border-slate-800 shadow-flat-sm">
-              <Sparkles className="h-5 w-5" />
+        {(!certInfo || !certInfo.isPaid) && (
+          <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 border-2 border-slate-950 dark:border-slate-800 shadow-flat space-y-4 text-slate-900 dark:text-white">
+            <div className="flex items-start gap-3">
+              <div className="h-10 w-10 bg-brand-100 dark:bg-brand-950/40 text-brand-600 dark:text-brand-455 rounded-xl flex items-center justify-center shrink-0 border-2 border-slate-950 dark:border-slate-800 shadow-flat-sm">
+                <Sparkles className="h-5 w-5" />
+              </div>
+              <div>
+                <h3 className="text-sm font-black">100% Free Learning</h3>
+                <p className="text-[11px] font-medium text-slate-600 dark:text-slate-400">
+                  All lessons & quizzes are free! Upgrade anytime to get your official verifiable certificate.
+                </p>
+              </div>
             </div>
-            <div>
-              <h3 className="text-sm font-black">100% Free Learning</h3>
-              <p className="text-[11px] font-medium text-slate-600 dark:text-slate-400">
-                All lessons & quizzes are free! Upgrade anytime to get your official verifiable certificate.
-              </p>
-            </div>
-          </div>
 
-          <div className="pt-1">
-            <button
-              onClick={() => {
-                const pName = encodeURIComponent(`${course.title} Certificate`);
-                navigate(`/payment?type=certificate&productId=${course._id}&name=${pName}&price=${course.certificatePrice || 499}`);
-              }}
-              className="flex items-center justify-center gap-2 w-full bg-brand-400 hover:bg-brand-300 text-slate-950 text-xs font-black py-2.5 rounded-xl border-2 border-slate-950 shadow-flat-sm transition active:translate-y-[1px] active:shadow-none"
-            >
-              <MessageCircle className="h-4 w-4 fill-slate-950" /> Claim Certificate (₹{course.certificatePrice || 499})
-            </button>
+            <div className="pt-1">
+              <button
+                onClick={() => {
+                  const pName = encodeURIComponent(`${course.title} Certificate`);
+                  navigate(`/payment?type=certificate&productId=${course._id}&name=${pName}&price=${course.certificatePrice || 499}`);
+                }}
+                className="flex items-center justify-center gap-2 w-full bg-brand-400 hover:bg-brand-300 text-slate-950 text-xs font-black py-2.5 rounded-xl border-2 border-slate-950 shadow-flat-sm transition active:translate-y-[1px] active:shadow-none"
+              >
+                <MessageCircle className="h-4 w-4 fill-slate-950" /> Claim Certificate (₹{course.certificatePrice || 499})
+              </button>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Final Exam MCQ Modal */}
