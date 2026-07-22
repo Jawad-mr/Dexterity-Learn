@@ -20,7 +20,8 @@ export const globalSearch = async (req, res, next) => {
   }
 
   try {
-    const searchRegex = new RegExp(query, 'i');
+    const escapedQuery = query.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+    const searchRegex = new RegExp(escapedQuery, 'i');
 
     // 1. Search Courses
     const courses = await Course.find({

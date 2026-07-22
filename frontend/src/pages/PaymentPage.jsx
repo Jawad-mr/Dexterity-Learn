@@ -329,6 +329,22 @@ export default function PaymentPage() {
             </div>
 
             <div className="text-center py-2 space-y-2">
+              {/* Mobile direct UPI pay button (hidden on desktop) */}
+              <div className="block sm:hidden my-2">
+                <a
+                  href={`upi://pay?pa=7204351696@ybl&pn=Dexterity%20Learn&am=${finalPrice}&cu=INR`}
+                  className="w-full bg-brand-400 hover:bg-brand-300 text-slate-950 font-black py-2.5 rounded-xl border-2 border-slate-950 flex items-center justify-center gap-2 text-xs shadow-flat-sm active:translate-y-[1px] transition"
+                >
+                  <Smartphone className="h-4 w-4 text-slate-950 shrink-0" />
+                  <span>Open UPI App to Pay ₹{finalPrice}</span>
+                </a>
+                <div className="flex items-center justify-center gap-2 my-3 select-none">
+                  <div className="h-0.5 flex-1 bg-slate-200 dark:bg-slate-800" />
+                  <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Or Scan QR</span>
+                  <div className="h-0.5 flex-1 bg-slate-200 dark:bg-slate-800" />
+                </div>
+              </div>
+
               <div className="inline-block bg-white p-2 rounded-2xl border-2 border-slate-950 shadow-flat-md">
                 <img
                   src={`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(`upi://pay?pa=7204351696@ybl&pn=Dexterity%20Learn&am=${finalPrice}&cu=INR`)}`}

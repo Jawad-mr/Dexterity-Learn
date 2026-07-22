@@ -23,6 +23,13 @@ export const createOrder = async (req, res, next) => {
         return next(new Error('Book not found'));
       }
       name = book.title;
+
+      // Check if user already owns this book
+      const ownsBook = req.user.unlockedBooks.some((id) => id.toString() === productId.toString());
+      if (ownsBook) {
+        res.status(400);
+        return next(new Error('You already own this e-book.'));
+      }
     } else if (productType === 'certificate') {
       if (productId) {
         const course = await Course.findById(productId);
@@ -33,6 +40,13 @@ export const createOrder = async (req, res, next) => {
         }
       } else {
         name = 'Verified Certificate';
+      }
+
+      // Check if user already has a paid certificate for this course
+      const existingCert = await Certificate.findOne({ userId, courseId: productId, isPaid: true });
+      if (existingCert) {
+        res.status(400);
+        return next(new Error('You already purchased a verified certificate for this course.'));
       }
     } else if (productType === 'coffee') {
       name = 'Buy Me a Coffee Support';
@@ -102,6 +116,11 @@ export const verifyPayment = async (req, res, next) => {
       return next(new Error('Payment log record not found.'));
     }
 
+    if (payment.userId.toString() !== userId.toString()) {
+      res.status(403);
+      return next(new Error('Access denied. This transaction does not belong to you.'));
+    }
+
     if (payment.status === 'completed') {
       return res.json({
         success: true,
@@ -120,8 +139,9 @@ export const verifyPayment = async (req, res, next) => {
       const user = await User.findById(userId);
 
       if (payment.productType === 'book') {
-        // Unlock E-book
-        if (!user.unlockedBooks.includes(payment.productId)) {
+        // Unlock E-book (Fix Mongoose ObjectId includes bug)
+        const ownsBook = user.unlockedBooks.some((id) => id.toString() === payment.productId.toString());
+        if (!ownsBook) {
           user.unlockedBooks.push(payment.productId);
           user.progress.xp += 50; // Purchase reward XP
           await user.save();
@@ -176,7 +196,8 @@ export const verifyCertificate = async (req, res, next) => {
   const { certId } = req.params;
 
   try {
-    const certificate = await Certificate.findOne({ certificateId: certId })
+    // Only verify paid, unlocked credentials
+    const certificate = await Certificate.findOne({ certificateId: certId, isPaid: true })
       .populate('userId', 'username profileImage progress')
       .populate('courseId', 'title category image estimatedTime difficulty');
 

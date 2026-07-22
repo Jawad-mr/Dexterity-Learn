@@ -122,74 +122,116 @@ export const toggleLessonComplete = async (req, res, next) => {
 
     const totalLessons = await Lesson.countDocuments({ courseId });
 
-    // 2. Fetch user
-    const user = await User.findById(userId);
+    // 2. Fetch user to check enrollment
+    let user = await User.findById(userId);
     if (!user) {
       res.status(404);
       return next(new Error('User not found'));
     }
 
     // 3. Find if already enrolled
-    let enrollment = user.enrolledCourses.find(
+    const alreadyEnrolled = user.enrolledCourses.some(
       (c) => c.courseId.toString() === courseId.toString()
     );
 
-    if (!enrollment) {
-      // Enroll user
-      enrollment = {
-        courseId,
-        progress: 0,
-        completedLessons: [lessonId],
-      };
-      user.enrolledCourses.push(enrollment);
-      // Award XP for enrolling
-      user.progress.xp += 20;
+    if (!alreadyEnrolled) {
+      // Enroll user atomically
+      user = await User.findOneAndUpdate(
+        { _id: userId, 'enrolledCourses.courseId': { $ne: courseId } },
+        {
+          $push: {
+            enrolledCourses: {
+              courseId,
+              progress: totalLessons > 0 ? Math.round((1 / totalLessons) * 100) : 0,
+              completedLessons: [lessonId],
+              updatedAt: new Date(),
+            },
+          },
+          $inc: { 'progress.xp': 20 },
+        },
+        { new: true }
+      );
     } else {
-      const lessonIndex = enrollment.completedLessons.indexOf(lessonId);
+      const enrollment = user.enrolledCourses.find(
+        (c) => c.courseId.toString() === courseId.toString()
+      );
+      const isCompleted = enrollment.completedLessons.some(
+        (id) => id.toString() === lessonId.toString()
+      );
 
-      if (lessonIndex > -1) {
+      if (isCompleted) {
         // Toggle: Unmark complete
-        enrollment.completedLessons.splice(lessonIndex, 1);
+        user = await User.findOneAndUpdate(
+          { _id: userId, 'enrolledCourses.courseId': courseId },
+          {
+            $pull: { 'enrolledCourses.$.completedLessons': lessonId },
+          },
+          { new: true }
+        );
       } else {
         // Toggle: Mark complete
-        enrollment.completedLessons.push(lessonId);
-        // Award completion XP
-        user.progress.xp += 10;
+        user = await User.findOneAndUpdate(
+          { _id: userId, 'enrolledCourses.courseId': courseId },
+          {
+            $addToSet: { 'enrolledCourses.$.completedLessons': lessonId },
+            $inc: { 'progress.xp': 10 },
+          },
+          { new: true }
+        );
       }
     }
 
-    // 4. Calculate progress percentage
-    const completedCount = enrollment.completedLessons.length;
-    enrollment.progress = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
-    enrollment.updatedAt = Date.now();
+    // Recalculate progress percentage from the updated user document
+    const updatedEnrollment = user.enrolledCourses.find(
+      (c) => c.courseId.toString() === courseId.toString()
+    );
+    const completedCount = updatedEnrollment.completedLessons.length;
+    const progress = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
+
+    user = await User.findOneAndUpdate(
+      { _id: userId, 'enrolledCourses.courseId': courseId },
+      {
+        $set: {
+          'enrolledCourses.$.progress': progress,
+          'enrolledCourses.$.updatedAt': new Date(),
+        },
+      },
+      { new: true }
+    );
 
     // 5. Check if course reached 100% and issue locked certificate
-    if (enrollment.progress === 100) {
+    if (progress === 100) {
       const certExists = await Certificate.findOne({ userId, courseId });
       if (!certExists) {
-        const certificateId = crypto.randomBytes(16).toString('hex');
+        const certificateId = crypto.randomUUID();
         await Certificate.create({
           userId,
           courseId,
-          userName: user.username,
+          userName: user.fullName || user.username,
           courseTitle: course.title,
           certificateId,
           isPaid: false, // Locked until payment
         });
-        // Award course completion badge
-        if (!user.progress.badges.includes('Course Graduate')) {
-          user.progress.badges.push('Course Graduate');
-        }
-        user.progress.xp += 100;
+        // Award course completion badge atomically
+        user = await User.findOneAndUpdate(
+          { _id: userId },
+          {
+            $addToSet: { 'progress.badges': 'Course Graduate' },
+            $inc: { 'progress.xp': 100 },
+          },
+          { new: true }
+        );
       }
     }
 
-    await user.save();
+    const finalEnrollment = user.enrolledCourses.find(
+      (c) => c.courseId.toString() === courseId.toString()
+    );
 
     res.json({
       success: true,
-      progress: enrollment.progress,
-      completedLessons: enrollment.completedLessons,
+      progress: finalEnrollment.progress,
+      completedLessons: finalEnrollment.completedLessons,
     });
   } catch (error) {
     next(error);

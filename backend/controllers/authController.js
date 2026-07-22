@@ -25,10 +25,11 @@ const sendEmailHelper = async (to, subject, text, html) => {
 // @route   POST /api/auth/signup
 // @access  Public
 export const signup = async (req, res, next) => {
-  const { username, email, password } = req.body;
+  const { username, email, password, fullName } = req.body;
 
   try {
-    const userExists = await User.findOne({ $or: [{ email }, { username }] });
+    const normalizedEmail = email.toLowerCase();
+    const userExists = await User.findOne({ $or: [{ email: normalizedEmail }, { username }] });
     if (userExists) {
       res.status(400);
       return next(new Error('User already exists with this email or username'));
@@ -36,8 +37,9 @@ export const signup = async (req, res, next) => {
 
     const user = await User.create({
       username,
-      email,
+      email: normalizedEmail,
       password,
+      fullName: fullName || '',
       isVerified: true,
       progress: {
         xp: 100,
@@ -53,6 +55,7 @@ export const signup = async (req, res, next) => {
         user: {
           _id: user._id,
           username: user.username,
+          fullName: user.fullName,
           email: user.email,
           role: user.role,
           profileImage: user.profileImage,
@@ -86,7 +89,8 @@ export const login = async (req, res, next) => {
 
   try {
     // Find user and include select password field
-    const user = await User.findOne({ email }).select('+password');
+    const normalizedEmail = email.toLowerCase();
+    const user = await User.findOne({ email: normalizedEmail }).select('+password');
 
     if (!user || !(await user.comparePassword(password))) {
       res.status(401);
@@ -114,6 +118,7 @@ export const login = async (req, res, next) => {
       user: {
         _id: user._id,
         username: user.username,
+        fullName: user.fullName,
         email: user.email,
         role: user.role,
         profileImage: user.profileImage,
@@ -132,7 +137,8 @@ export const forgotPassword = async (req, res, next) => {
   const { email } = req.body;
 
   try {
-    const user = await User.findOne({ email });
+    const normalizedEmail = email.toLowerCase();
+    const user = await User.findOne({ email: normalizedEmail });
     if (!user) {
       res.status(404);
       return next(new Error('User not found with this email address'));
@@ -140,7 +146,8 @@ export const forgotPassword = async (req, res, next) => {
 
     // Create password reset token
     const resetToken = crypto.randomBytes(32).toString('hex');
-    user.resetPasswordToken = resetToken;
+    const hashedResetToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+    user.resetPasswordToken = hashedResetToken;
     user.resetPasswordTokenExpires = Date.now() + 10 * 60 * 1000; // 10 minutes expiry
     await user.save();
 
@@ -158,7 +165,7 @@ export const forgotPassword = async (req, res, next) => {
       </div>
     `;
 
-    await sendEmailHelper(email, 'Reset Password Request — Dexterity Learn', emailText, emailHtml);
+    await sendEmailHelper(normalizedEmail, 'Reset Password Request — Dexterity Learn', emailText, emailHtml);
 
     res.json({
       success: true,
@@ -176,8 +183,9 @@ export const resetPassword = async (req, res, next) => {
   const { token, password } = req.body;
 
   try {
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
     const user = await User.findOne({
-      resetPasswordToken: token,
+      resetPasswordToken: hashedToken,
       resetPasswordTokenExpires: { $gt: Date.now() },
     });
 
@@ -244,7 +252,7 @@ export const getProfile = async (req, res, next) => {
 // @route   PUT /api/auth/profile
 // @access  Private
 export const updateProfile = async (req, res, next) => {
-  const { username } = req.body;
+  const { username, fullName } = req.body;
 
   try {
     const user = await User.findById(req.user._id);
@@ -262,6 +270,15 @@ export const updateProfile = async (req, res, next) => {
       user.username = username;
     }
 
+    if (fullName !== undefined) {
+      user.fullName = fullName.trim();
+      // Cascade update all certificates issued to this user
+      await Certificate.updateMany(
+        { userId: user._id },
+        { userName: user.fullName || user.username }
+      );
+    }
+
     await user.save();
 
     res.json({
@@ -270,6 +287,7 @@ export const updateProfile = async (req, res, next) => {
       user: {
         _id: user._id,
         username: user.username,
+        fullName: user.fullName,
         email: user.email,
         role: user.role,
         profileImage: user.profileImage,

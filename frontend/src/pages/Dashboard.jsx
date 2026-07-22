@@ -56,6 +56,36 @@ export default function Dashboard() {
   const [passSuccess, setPassSuccess] = useState('');
   const [passError, setPassError] = useState('');
 
+  // Profile Settings state
+  const [profileFullName, setProfileFullName] = useState(user?.fullName || '');
+  const [profileSuccess, setProfileSuccess] = useState('');
+  const [profileError, setProfileError] = useState('');
+  const [profileLoading, setProfileLoading] = useState(false);
+
+  React.useEffect(() => {
+    if (user) {
+      setProfileFullName(user.fullName || '');
+    }
+  }, [user]);
+
+  const handleProfileUpdate = async (e) => {
+    e.preventDefault();
+    setProfileSuccess('');
+    setProfileError('');
+    setProfileLoading(true);
+    try {
+      const res = await api.put('/auth/profile', { fullName: profileFullName });
+      if (res.data.success) {
+        setProfileSuccess('Profile updated successfully!');
+        await refreshUser();
+      }
+    } catch (err) {
+      setProfileError(err.response?.data?.message || 'Failed to update profile.');
+    } finally {
+      setProfileLoading(false);
+    }
+  };
+
   // Certificate Modal State
   const [selectedCert, setSelectedCert] = useState(null);
   const [certSearch, setCertSearch] = useState('');
@@ -129,7 +159,7 @@ export default function Dashboard() {
     }
   };
 
-  const completedCourses = user.enrolledCourses?.filter((c) => c.progress === 100) || [];
+  const completedCourses = user.enrolledCourses?.filter((c) => c.courseId && c.progress === 100) || [];
 
   return (
     <div className="space-y-6 pb-6 lg:grid lg:grid-cols-4 lg:gap-6 lg:space-y-0">
@@ -158,8 +188,8 @@ export default function Dashboard() {
           </div>
 
           <div className="min-w-0">
-            <h2 className="text-base font-black text-slate-900 dark:text-slate-100 truncate">{user.username}</h2>
-            <p className="text-[11px] text-slate-400 truncate">{user.email}</p>
+            <h2 className="text-base font-black text-slate-900 dark:text-slate-100 truncate">{user.fullName || user.username}</h2>
+            <p className="text-[11px] text-slate-400 truncate">{user.fullName ? `@${user.username} • ${user.email}` : user.email}</p>
             {user.role === 'admin' && (
               <Link to="/admin" className="text-[10px] text-brand-600 font-bold hover:underline flex items-center gap-0.5 mt-1">
                 <Key className="h-3 w-3" /> Admin Dashboard
@@ -244,8 +274,8 @@ export default function Dashboard() {
         {/* TAB 1: Courses */}
         {activeTab === 'courses' && (
           <div className="space-y-3">
-            {user.enrolledCourses && user.enrolledCourses.length > 0 ? (
-              user.enrolledCourses.map((c) => (
+            {user.enrolledCourses && user.enrolledCourses.filter((c) => c.courseId).length > 0 ? (
+              user.enrolledCourses.filter((c) => c.courseId).map((c) => (
                 <div
                   key={c.courseId?._id}
                   className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-soft space-y-3"
@@ -257,7 +287,7 @@ export default function Dashboard() {
                     </div>
                     {c.progress === 100 && (
                       <span
-                        onClick={() => setSelectedCert({ title: c.courseId?.title, username: user.username })}
+                        onClick={() => setSelectedCert({ title: c.courseId?.title, username: user.fullName || user.username })}
                         className="text-[9px] font-bold bg-brand-500 hover:bg-brand-600 text-white px-2.5 py-1 rounded-lg cursor-pointer transition flex items-center gap-1 shrink-0"
                       >
                         <Award className="h-3 w-3" /> Certificate
@@ -640,8 +670,50 @@ export default function Dashboard() {
 
         {/* TAB 5: Account Settings */}
         {activeTab === 'settings' && (
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-soft space-y-5">
-            <h3 className="text-xs font-bold text-slate-800 dark:text-slate-100">Security Credentials</h3>
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-soft space-y-6">
+            <div>
+              <h3 className="text-xs font-bold text-slate-800 dark:text-slate-100 mb-3">Profile Settings</h3>
+
+              {profileSuccess && (
+                <div className="mb-3 flex items-center gap-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-250 p-2.5 text-xs text-emerald-600">
+                  <CheckCircle className="h-4 w-4 shrink-0" />
+                  <span>{profileSuccess}</span>
+                </div>
+              )}
+              {profileError && (
+                <div className="mb-3 flex items-center gap-2 rounded-xl bg-red-50 dark:bg-red-950/20 border border-red-250 p-2.5 text-xs text-red-600">
+                  <span>{profileError}</span>
+                </div>
+              )}
+
+              <form onSubmit={handleProfileUpdate} className="space-y-4">
+                <div>
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 block mb-1">
+                    Legal Full Name
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={profileFullName}
+                    onChange={(e) => setProfileFullName(e.target.value)}
+                    className="w-full rounded-xl bg-slate-50 dark:bg-slate-800/50 py-2 px-3 text-xs border border-slate-200 dark:border-slate-800 outline-none focus:border-brand-500 text-slate-800 dark:text-slate-200"
+                    placeholder="e.g. Arjun Sharma"
+                  />
+                  <p className="text-[9px] text-slate-450 mt-1">This name will be printed on all your unlocked course certificates.</p>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={profileLoading}
+                  className="bg-brand-500 hover:bg-brand-650 text-white text-xs font-bold px-4 py-2 rounded-xl transition"
+                >
+                  {profileLoading ? 'Saving...' : 'Save Profile Name'}
+                </button>
+              </form>
+            </div>
+
+            <div className="border-t border-slate-150 dark:border-slate-850 pt-5">
+              <h3 className="text-xs font-bold text-slate-800 dark:text-slate-100">Security Credentials</h3>
 
             {passSuccess && (
               <div className="flex items-center gap-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 p-3 text-xs text-emerald-600">

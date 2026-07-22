@@ -151,8 +151,13 @@ export const adminDeleteUser = async (req, res, next) => {
       res.status(404);
       return next(new Error('User not found'));
     }
+    // Cascade delete associated user data
+    await Certificate.deleteMany({ userId: user._id });
+    await Payment.deleteMany({ userId: user._id });
+    await Notification.deleteMany({ userId: user._id });
+
     await User.findByIdAndDelete(req.params.id);
-    res.json({ success: true, message: 'User deleted successfully' });
+    res.json({ success: true, message: 'User and all associated data deleted successfully' });
   } catch (error) {
     next(error);
   }
@@ -201,10 +206,27 @@ export const adminDeleteCourse = async (req, res, next) => {
       res.status(404);
       return next(new Error('Course not found'));
     }
-    // Delete associated lessons
+    // Find all lessons to clean up bookmarks
+    const lessons = await Lesson.find({ courseId: course._id }).select('_id');
+    const lessonIds = lessons.map((l) => l._id);
+
+    // Cascade delete associated records
     await Lesson.deleteMany({ courseId: course._id });
+    await Certificate.deleteMany({ courseId: course._id });
+    await Payment.deleteMany({ productId: course._id, productType: 'certificate' });
+
+    // Pull enrollments and bookmarks from all users
+    await User.updateMany(
+      { 'enrolledCourses.courseId': course._id },
+      { $pull: { enrolledCourses: { courseId: course._id } } }
+    );
+    await User.updateMany(
+      {},
+      { $pull: { bookmarks: { id: { $in: lessonIds } } } }
+    );
+
     await Course.findByIdAndDelete(req.params.id);
-    res.json({ success: true, message: 'Course and associated lessons deleted successfully' });
+    res.json({ success: true, message: 'Course, associated lessons, certificates, payments, and user enrollments deleted successfully' });
   } catch (error) {
     next(error);
   }
@@ -389,7 +411,8 @@ export const adminApprovePayment = async (req, res, next) => {
     const user = await User.findById(payment.userId);
     if (user) {
       if (payment.productType === 'book' && payment.productId) {
-        if (!user.unlockedBooks.includes(payment.productId)) {
+        const ownsBook = user.unlockedBooks.some((id) => id.toString() === payment.productId.toString());
+        if (!ownsBook) {
           user.unlockedBooks.push(payment.productId);
           await user.save();
         }
@@ -401,9 +424,9 @@ export const adminApprovePayment = async (req, res, next) => {
           cert = new Certificate({
             userId: user._id,
             courseId: payment.productId,
-            userName: user.username,
+            userName: user.fullName || user.username,
             courseTitle: courseTitle,
-            certificateId: `CERT-${Date.now()}-${Math.floor(100 + Math.random() * 900)}`,
+            certificateId: `CERT-${crypto.randomUUID()}`,
             isPaid: true,
             issuedAt: Date.now(),
           });
@@ -446,9 +469,9 @@ export const adminGrantAccess = async (req, res, next) => {
         cert = new Certificate({
           userId,
           courseId: targetId,
-          userName: user.username,
+          userName: user.fullName || user.username,
           courseTitle: courseTitle,
-          certificateId: `CERT-ADMIN-${Date.now()}`,
+          certificateId: `CERT-ADMIN-${crypto.randomUUID()}`,
           isPaid: true,
           issuedAt: Date.now(),
         });
@@ -466,7 +489,8 @@ export const adminGrantAccess = async (req, res, next) => {
         type: 'certificate',
       });
     } else if (targetType === 'book') {
-      if (!user.unlockedBooks.includes(targetId)) {
+      const ownsBook = user.unlockedBooks.some((id) => id.toString() === targetId.toString());
+      if (!ownsBook) {
         user.unlockedBooks.push(targetId);
         await user.save();
       }
@@ -490,6 +514,11 @@ export const adminGrantAccess = async (req, res, next) => {
 // @route   POST /api/admin/seed-db
 // @access  Private/Admin
 export const adminSeedDatabase = async (req, res, next) => {
+  if (process.env.NODE_ENV === 'production') {
+    res.status(403);
+    return next(new Error('Database seeding/reset is disabled in production environments.'));
+  }
+
   try {
     // Clear existing collections
     await User.deleteMany({});

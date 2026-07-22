@@ -87,8 +87,8 @@ export default function Home() {
       gradient: 'from-amber-300 to-orange-400',
     },
     {
-      title: 'JSN Creative & Founder Message ❤️',
-      content: 'This premium version of Dexterity Learn is proudly built by JSN Creative and the founder Muhammad Jawad M R. One Love to all our student community!',
+      title: 'Jsn Creative & Founder Message ❤️',
+      content: 'This premium version of Dexterity Learn is proudly built by Jsn Creative and the founder Muhammad Jawad M R. One Love to all our student community!',
       category: 'Founder Message',
       image: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=400&q=80',
       gradient: 'from-violet-300 to-fuchsia-400',

@@ -196,7 +196,7 @@ export default function PublicProfile() {
       <div className="space-y-2">
         <h3 className="text-xs font-black uppercase text-slate-400 dark:text-slate-500 px-1">Syllabus Completion</h3>
         <div className="grid gap-2">
-          {profile.enrolledCourses?.map((c) => (
+          {profile.enrolledCourses?.filter((c) => c.courseId).map((c) => (
             <div
               key={c.courseId?._id}
               className="bg-white dark:bg-slate-900 border-2 border-slate-950 dark:border-slate-800 rounded-2xl p-3 flex items-center justify-between shadow-flat-sm select-none"

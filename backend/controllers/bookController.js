@@ -65,7 +65,8 @@ export const getBookPage = async (req, res, next) => {
           const decoded = jwt.verify(token, process.env.JWT_SECRET);
           const user = await User.findById(decoded.id);
 
-          if (user && (user.unlockedBooks.includes(book._id) || user.role === 'admin')) {
+          const ownsBook = user.unlockedBooks.some((id) => id.toString() === book._id.toString());
+          if (user && (ownsBook || user.role === 'admin')) {
             isLocked = false;
 
             // Track reading history and award reading XP (+5 XP)

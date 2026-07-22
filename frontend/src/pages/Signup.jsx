@@ -8,6 +8,7 @@ export default function Signup() {
   const navigate = useNavigate();
   
   const [username, setUsername] = useState('');
+  const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   
@@ -20,7 +21,7 @@ export default function Signup() {
     setError('');
     setLoading(true);
 
-    const result = await signup(username, email, password);
+    const result = await signup(username, email, password, fullName);
     setLoading(false);
 
     if (result.success) {
@@ -140,6 +141,26 @@ export default function Signup() {
 
           {!successMsg && (
             <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Full Name */}
+              <div>
+                <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500 block mb-1.5">
+                  Full Name
+                </label>
+                <div className="relative">
+                  <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                    <User className="h-4 w-4" />
+                  </span>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Arjun Sharma"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    className="w-full rounded-xl bg-slate-50 dark:bg-slate-800/50 py-2.5 pl-10 pr-4 text-xs border-2 border-slate-950 focus:bg-brand-50 outline-none transition text-slate-808 dark:text-slate-200"
+                  />
+                </div>
+              </div>
+
               {/* Username */}
               <div>
                 <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500 block mb-1.5">
