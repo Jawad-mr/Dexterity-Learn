@@ -234,7 +234,9 @@ export default function CourseSyllabus() {
                   <p className="text-[11px] font-semibold text-amber-700 dark:text-amber-300">Complete all learning syllabus, final exams, capstone, and assignments to unlock your certificate.</p>
                 </div>
               </div>
-                     {/* Certificate Preview Card with Watermark or Blur */}
+            )}
+
+            {/* Certificate Preview Card with Watermark or Blur */}
             <div id="certificate-preview-card" className="relative w-full max-w-[620px] mx-auto aspect-[1.414] border-[6px] border-double border-amber-600 bg-amber-50/45 dark:bg-[#1f1a14] p-6 text-[#4a3b2b] dark:text-[#c4b3a0] rounded-2xl shadow-inner overflow-hidden select-none flex flex-col justify-between text-center">
               
               {/* Confetti or Seal Watermark background */}
