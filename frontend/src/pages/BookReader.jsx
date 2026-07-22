@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ChevronLeft, ChevronRight, Type, CreditCard, Bookmark, BookOpen, AlertCircle, FileText, CheckCircle, Save, Loader2, Edit3, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Clock, CreditCard, Bookmark, BookOpen, AlertCircle, FileText, CheckCircle, Save, Loader2, Edit3, X } from 'lucide-react';
 import { api, useAuth } from '../context/AuthContext';
 
 export default function BookReader() {
