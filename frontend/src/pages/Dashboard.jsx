@@ -769,8 +769,8 @@ export default function Dashboard() {
               Log Out Session
             </button>
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Certificate Viewer Popup modal (Beautiful HTML styling) */}
       {selectedCert && (
