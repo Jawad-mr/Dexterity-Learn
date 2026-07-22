@@ -7,6 +7,7 @@ import { ThemeProvider } from './context/ThemeContext';
 
 // Layout Wrappers
 import AppLayout from './layouts/AppLayout';
+import OfflineBanner from './components/OfflineBanner';
 
 // Public & Student Pages
 import Home from './pages/Home';
@@ -50,6 +51,7 @@ function NotFound() {
 export default function App() {
   return (
     <AuthProvider>
+      <OfflineBanner />
       <ThemeProvider>
         <Routes>
           {/* Main App-styled layout (Top Nav + Bottom Nav wrapper) */}

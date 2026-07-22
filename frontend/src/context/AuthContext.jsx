@@ -6,6 +6,7 @@ const AuthContext = createContext();
 // Create configure axios instance
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || '/api',
+  timeout: 15000, // 15-second request timeout to prevent hanging requests
   headers: {
     'Content-Type': 'application/json',
   },
@@ -15,6 +16,20 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(localStorage.getItem('token') || '');
   const [loading, setLoading] = useState(true);
+
+  // Sync token state across browser tabs automatically
+  useEffect(() => {
+    const handleStorageChange = (e) => {
+      if (e.key === 'token') {
+        setToken(e.newValue || '');
+        if (!e.newValue) {
+          setUser(null);
+        }
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
 
   // Set up interceptor to inject Authorization header
   useEffect(() => {

@@ -61,6 +61,29 @@ export const createOrder = async (req, res, next) => {
       return next(new Error('Invalid product type'));
     }
 
+    // Idempotency check: Return existing pending order created in the last 15 seconds to prevent duplicate charges
+    const recentPendingPayment = await Payment.findOne({
+      userId,
+      productType,
+      productId: productId || null,
+      status: 'pending',
+      createdAt: { $gte: new Date(Date.now() - 15 * 1000) },
+    });
+
+    if (recentPendingPayment) {
+      return res.json({
+        success: true,
+        order: {
+          paymentId: recentPendingPayment._id,
+          invoiceNumber: recentPendingPayment.invoiceNumber,
+          amount: recentPendingPayment.amount,
+          currency: recentPendingPayment.currency,
+          productType: recentPendingPayment.productType,
+          productName: name,
+        },
+      });
+    }
+
     // Generate unique invoice number
     const invoiceNumber = `INV-${Date.now()}-${Math.floor(100 + Math.random() * 900)}`;
 

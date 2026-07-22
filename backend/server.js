@@ -114,6 +114,18 @@ process.on('uncaughtException', (err) => {
   });
 });
 
+// Graceful shutdown on SIGTERM and SIGINT signals (Render / Docker container stops)
+const gracefulShutdown = (signal) => {
+  console.log(`\n🛑 Received ${signal}. Closing HTTP server gracefully...`);
+  server.close(() => {
+    console.log('HTTP server closed. Exiting process.');
+    process.exit(0);
+  });
+};
+
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+
 // Keep Render free web service alive by pinging itself
 const RENDER_URL = process.env.RENDER_EXTERNAL_URL;
 if (RENDER_URL) {

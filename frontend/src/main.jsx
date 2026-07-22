@@ -6,12 +6,18 @@ import App from './App.jsx';
 import ErrorBoundary from './components/ErrorBoundary.jsx';
 import './index.css';
 
-// Create a React Query client
+// Create a React Query client with smart production retry strategy
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       refetchOnWindowFocus: false,
-      retry: 1,
+      retry: (failureCount, error) => {
+        // Do not retry 401 (Unauthorized) or 404 (Not Found) errors
+        if (error?.response?.status === 401 || error?.response?.status === 404) {
+          return false;
+        }
+        return failureCount < 2;
+      },
       staleTime: 5 * 60 * 1000, // Cache results for 5 minutes
       gcTime: 10 * 60 * 1000,
     },
