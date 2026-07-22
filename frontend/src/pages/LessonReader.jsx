@@ -318,7 +318,7 @@ export default function LessonReader() {
         )}
 
         {/* Completion & Navigation bar footer */}
-        <div className="flex items-center justify-between border-t border-slate-200 dark:border-slate-800 pt-4 mt-8">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 dark:border-slate-800 pt-4 mt-8">
           
           {/* Previous navigation */}
           {prevLesson ? (
@@ -363,8 +363,8 @@ export default function LessonReader() {
         </div>
       </div>
 
-      {/* Right Column: Code Sandbox Editor (Sticky) */}
-      <div className="space-y-6 lg:col-span-1 lg:sticky lg:top-20">
+      {/* Right Column: Code Sandbox Editor */}
+      <div className="space-y-6 lg:col-span-1 lg:sticky lg:top-20 order-first lg:order-last">
         {lesson.codeSnippets?.length > 0 && (
           <div className="bg-slate-900 text-white rounded-3xl border-2 border-slate-950 shadow-flat overflow-hidden">
             <div className="flex items-center justify-between px-4 py-3 bg-slate-950 border-b-2 border-slate-900">

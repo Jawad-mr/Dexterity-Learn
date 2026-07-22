@@ -131,67 +131,77 @@ export default function BookReader() {
     <div className="space-y-4 pb-12">
       
       {/* 1. Header Toolbar */}
-      <div className="flex items-center justify-between bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-2.5 shadow-soft">
-        <button
-          onClick={() => navigate('/books')}
-          className="flex h-8 w-8 items-center justify-center rounded-xl text-slate-400 hover:text-slate-650"
-        >
-          <ChevronLeft className="h-5 w-5" />
-        </button>
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-2.5 shadow-soft space-y-2">
+        {/* Row 1: Back + Title + Bookmark */}
+        <div className="flex items-center justify-between gap-2">
+          <button
+            onClick={() => navigate('/books')}
+            className="flex h-8 w-8 items-center justify-center rounded-xl text-slate-400 hover:text-slate-650 shrink-0"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </button>
 
-        <div className="flex items-center gap-1">
-          {/* FontSize switcher */}
-          <div className="flex items-center border-2 border-slate-950 dark:border-slate-800 rounded-xl overflow-hidden shadow-flat-sm">
-            {['small', 'medium', 'large'].map((sz) => (
-              <button
-                key={sz}
-                onClick={() => setFontSize(sz)}
-                className={`text-[10px] font-black px-2 py-1 transition ${
-                  fontSize === sz ? 'bg-brand-400 text-slate-950' : 'bg-transparent text-slate-500 dark:text-slate-400'
-                }`}
-              >
-                {sz.charAt(0).toUpperCase()}
-              </button>
-            ))}
-          </div>
-
-          {/* Theme switcher */}
-          <div className="flex border-2 border-slate-950 dark:border-slate-800 rounded-xl overflow-hidden shadow-flat-sm">
-            {['light', 'dark', 'sepia'].map((th) => (
-              <button
-                key={th}
-                onClick={() => setTheme(th)}
-                className={`text-[9px] font-black px-2 py-1 capitalize transition ${
-                  theme === th ? 'bg-brand-400 text-slate-950' : 'bg-transparent text-slate-500 dark:text-slate-400'
-                }`}
-              >
-                {th}
-              </button>
-            ))}
-          </div>
-
-          {/* Notes toggle */}
-          {user && (
-            <button
-              onClick={() => setShowNotes(!showNotes)}
-              className="flex h-8 w-8 items-center justify-center rounded-xl border-2 border-slate-950 text-slate-700 bg-white shadow-flat-sm active:translate-y-[1px] active:shadow-none transition"
-              title="Notes"
-            >
-              <Edit3 className="h-4 w-4" />
-            </button>
-          )}
+          <span className="text-xs font-black text-slate-800 dark:text-slate-100 truncate flex-1 text-center">
+            {bookMeta?.title || 'Ebook Reader'}
+          </span>
 
           {/* Bookmark page */}
           {user && (
             <button
               onClick={() => bookmarkMutation.mutate()}
-              className={`flex h-8 w-8 items-center justify-center rounded-xl border-2 border-slate-950 shadow-flat-sm active:translate-y-[1px] active:shadow-none transition ${
+              className={`flex h-8 w-8 items-center justify-center rounded-xl border-2 border-slate-950 shadow-flat-sm active:translate-y-[1px] active:shadow-none transition shrink-0 ${
                 isBookmarked
                   ? 'bg-brand-400 text-slate-950 font-black'
                   : 'bg-white text-slate-700'
               }`}
             >
               <Bookmark className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+
+        {/* Row 2: Controls */}
+        <div className="flex items-center justify-between gap-2 flex-wrap">
+          <div className="flex items-center gap-1.5">
+            {/* FontSize switcher */}
+            <div className="flex items-center border-2 border-slate-950 dark:border-slate-800 rounded-xl overflow-hidden shadow-flat-sm">
+              {['small', 'medium', 'large'].map((sz) => (
+                <button
+                  key={sz}
+                  onClick={() => setFontSize(sz)}
+                  className={`text-[10px] font-black px-2 py-1 transition ${
+                    fontSize === sz ? 'bg-brand-400 text-slate-950' : 'bg-transparent text-slate-500 dark:text-slate-400'
+                  }`}
+                >
+                  {sz.charAt(0).toUpperCase()}
+                </button>
+              ))}
+            </div>
+
+            {/* Theme switcher */}
+            <div className="flex border-2 border-slate-950 dark:border-slate-800 rounded-xl overflow-hidden shadow-flat-sm">
+              {['light', 'dark', 'sepia'].map((th) => (
+                <button
+                  key={th}
+                  onClick={() => setTheme(th)}
+                  className={`text-[9px] font-black px-2 py-1 capitalize transition ${
+                    theme === th ? 'bg-brand-400 text-slate-950' : 'bg-transparent text-slate-500 dark:text-slate-400'
+                  }`}
+                >
+                  {th}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Notes toggle */}
+          {user && (
+            <button
+              onClick={() => setShowNotes(!showNotes)}
+              className="flex items-center gap-1 h-8 px-2.5 rounded-xl border-2 border-slate-950 text-slate-700 bg-white shadow-flat-sm active:translate-y-[1px] active:shadow-none transition text-[10px] font-black"
+              title="Notes"
+            >
+              <Edit3 className="h-3.5 w-3.5" /> Notes
             </button>
           )}
         </div>

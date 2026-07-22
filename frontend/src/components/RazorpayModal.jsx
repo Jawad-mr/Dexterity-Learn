@@ -97,8 +97,8 @@ export default function RazorpayModal({
 
       if (onSuccess) onSuccess(orderData);
 
-      // Redirect to WhatsApp
-      window.location.href = waUrl;
+      // Open WhatsApp in new tab
+      window.open(waUrl, '_blank');
       onClose();
     } catch (err) {
       setLoading(false);

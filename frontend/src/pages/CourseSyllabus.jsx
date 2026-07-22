@@ -191,8 +191,8 @@ export default function CourseSyllabus() {
                 <Share2 className="h-2.5 w-2.5" /> Share Path
               </button>
             </div>
-            <h1 className="text-lg font-black leading-tight text-white">{course.title}</h1>
-            <div className="flex gap-4 text-[10px] text-slate-200 font-bold">
+            <h1 className="text-base sm:text-lg font-black leading-tight text-white">{course.title}</h1>
+            <div className="flex flex-wrap gap-3 text-[10px] text-slate-200 font-bold">
               <span className="flex items-center gap-1"><Clock className="h-3.5 w-3.5 text-brand-400" /> {course.estimatedTime}</span>
               <span className="flex items-center gap-1"><Award className="h-3.5 w-3.5 text-brand-400" /> {course.difficulty}</span>
             </div>
@@ -304,7 +304,7 @@ export default function CourseSyllabus() {
             </div>
 
             {/* Certificate ID & Verification Info */}
-            <div className="bg-slate-50 dark:bg-slate-800/40 border border-slate-350 dark:border-slate-800 rounded-2xl p-3 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 text-xs">
+            <div className="bg-slate-50 dark:bg-slate-800/40 border border-slate-350 dark:border-slate-800 rounded-2xl p-3 flex flex-col gap-3 text-xs">
               <div className="space-y-0.5">
                 <span className="text-[9px] font-black uppercase text-slate-400 block tracking-wider">Secure Certificate ID</span>
                 <span className="font-mono font-bold text-slate-800 dark:text-slate-200">
@@ -363,12 +363,12 @@ export default function CourseSyllabus() {
               
               <div className="space-y-2.5 text-xs">
                 {/* 1. Progress */}
-                <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/50 pb-2">
-                  <div className="flex items-center gap-2">
-                    <span className="text-base">{progress === 100 ? '✅' : '❌'}</span>
+                <div className="flex items-start sm:items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800/50 pb-2">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="text-base shrink-0">{progress === 100 ? '✅' : '❌'}</span>
                     <span className="font-bold">100% Course Completion</span>
                   </div>
-                  <span className="font-black text-slate-500">{progress}%</span>
+                  <span className="font-black text-slate-500 shrink-0">{progress}%</span>
                 </div>
 
                 {/* 2. Quizzes */}
@@ -411,17 +411,17 @@ export default function CourseSyllabus() {
                 </div>
 
                 {/* 4. Capstone Project */}
-                <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/50 pb-2">
+                <div className="flex items-start sm:items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800/50 pb-2">
                   <div className="flex items-center gap-2">
-                    <span className="text-base">{capstoneSubmitted ? '✅' : '❌'}</span>
+                    <span className="text-base shrink-0">{capstoneSubmitted ? '✅' : '❌'}</span>
                     <span className="font-bold">Capstone Project Submitted</span>
                   </div>
                   {capstoneSubmitted ? (
-                    <span className="font-black text-emerald-600">Submitted ✓</span>
+                    <span className="font-black text-emerald-600 shrink-0">Submitted ✓</span>
                   ) : (
                     <button
                       onClick={() => setShowCapstoneModal(true)}
-                      className="bg-brand-400 hover:bg-brand-300 text-[10px] font-black px-2.5 py-1 border-2 border-slate-950 rounded-lg shadow-flat-xs text-slate-950"
+                      className="bg-brand-400 hover:bg-brand-300 text-[10px] font-black px-2.5 py-1 border-2 border-slate-950 rounded-lg shadow-flat-xs text-slate-950 shrink-0"
                     >
                       Submit Capstone
                     </button>
@@ -464,12 +464,12 @@ export default function CourseSyllabus() {
             {lessons?.map((lesson, idx) => {
               const isCompleted = enrollment?.completedLessons?.includes(lesson._id);
               return (
-                <Link
+              <Link
                   key={lesson._id}
                   to={`/courses/${course.slug}/lessons/${lesson.slug}`}
-                  className="flex items-center justify-between bg-white dark:bg-slate-900 border-2 border-slate-950 dark:border-slate-800 rounded-2xl hover:bg-brand-50/50 p-3 cursor-pointer shadow-flat-sm hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all"
+                  className="flex items-center justify-between bg-white dark:bg-slate-900 border-2 border-slate-950 dark:border-slate-800 rounded-2xl hover:bg-brand-50/50 p-3 cursor-pointer shadow-flat-sm hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all overflow-hidden"
                 >
-                  <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="flex items-center gap-2.5 min-w-0 overflow-hidden">
                     <div className={`h-6 w-6 rounded-lg flex items-center justify-center font-bold text-xs shrink-0 border border-slate-950 ${
                       isCompleted 
                         ? 'bg-brand-400 text-slate-950' 
@@ -477,12 +477,12 @@ export default function CourseSyllabus() {
                     }`}>
                       {idx + 1}
                     </div>
-                    <span className="text-xs font-bold text-slate-800 dark:text-slate-250 truncate">
+                    <span className="text-xs font-bold text-slate-800 dark:text-slate-250 truncate min-w-0">
                       {lesson.title}
                     </span>
                   </div>
                   
-                  <div className="flex items-center gap-2 text-slate-450 shrink-0">
+                  <div className="flex items-center gap-2 text-slate-450 shrink-0 pl-2">
                     {isCompleted && (
                       <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-450" />
                     )}

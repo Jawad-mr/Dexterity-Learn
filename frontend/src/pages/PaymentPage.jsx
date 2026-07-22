@@ -114,7 +114,7 @@ export default function PaymentPage() {
         `----------------------------------------%0A` +
         `*Action:* Please check the attached payment transaction screenshot below and verify my access activation request.`;
 
-      window.location.href = `https://wa.me/${waNumber}?text=${message}`;
+      window.open(`https://wa.me/${waNumber}?text=${message}`, '_blank');
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to initialize WhatsApp checkout order.');
     } finally {
@@ -316,7 +316,7 @@ export default function PaymentPage() {
       )}
 
       {step === 2 && (
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-stretch">
+        <div className="flex flex-col md:grid md:grid-cols-12 gap-3 items-stretch">
           <div className="md:col-span-5 bg-white dark:bg-slate-900 border-2 border-slate-950 dark:border-slate-800 rounded-3xl p-4 shadow-flat flex flex-col justify-between space-y-3">
             <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2">
               <div className="flex items-center gap-1.5">
@@ -350,7 +350,7 @@ export default function PaymentPage() {
                   src={`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(`upi://pay?pa=7204351696@ybl&pn=Dexterity%20Learn&am=${finalPrice}&cu=INR`)}`}
                   alt="UPI Payment QR Code"
                   onError={(e) => { e.currentTarget.src = '/payment-qr.png'; }}
-                  className="w-36 h-36 object-contain rounded-lg mx-auto"
+                  className="w-40 h-40 sm:w-36 sm:h-36 object-contain rounded-lg mx-auto"
                 />
               </div>
               <div className="space-y-0.5">
