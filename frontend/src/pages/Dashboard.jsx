@@ -772,8 +772,6 @@ export default function Dashboard() {
         )}
       </div>
 
-      </div> {/* Close Right Column wrapper */}
-
       {/* Certificate Viewer Popup modal (Beautiful HTML styling) */}
       {selectedCert && (
         <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
