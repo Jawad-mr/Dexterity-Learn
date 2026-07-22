@@ -60,5 +60,7 @@ const paymentSchema = new mongoose.Schema(
   }
 );
 
+paymentSchema.index({ userId: 1, productId: 1, productType: 1, status: 1 });
+
 const Payment = mongoose.model('Payment', paymentSchema);
 export default Payment;

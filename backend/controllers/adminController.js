@@ -8,6 +8,7 @@ import Announcement from '../models/Announcement.js';
 import Category from '../models/Category.js';
 import Lesson from '../models/Lesson.js';
 import Notification from '../models/Notification.js';
+import { logAdminAction } from '../utils/auditLogger.js';
 
 // @desc    Get dashboard metrics & analytics charts
 // @route   GET /api/admin/stats
@@ -135,9 +136,18 @@ export const adminUpdateUser = async (req, res, next) => {
       res.status(404);
       return next(new Error('User not found'));
     }
+
+    // Block admins from demoting themselves
+    if (req.params.id === req.user._id.toString() && role && role !== 'admin') {
+      res.status(400);
+      return next(new Error('Administrators cannot demote themselves.'));
+    }
+
     if (role) user.role = role;
     if (isVerified !== undefined) user.isVerified = isVerified;
     await user.save();
+
+    await logAdminAction(req, 'USER_UPDATE', user._id, 'User', { role, isVerified, username: user.username });
     res.json({ success: true, message: 'User updated successfully', user });
   } catch (error) {
     next(error);
@@ -151,12 +161,21 @@ export const adminDeleteUser = async (req, res, next) => {
       res.status(404);
       return next(new Error('User not found'));
     }
+
+    // Block admins from deleting themselves
+    if (req.params.id === req.user._id.toString()) {
+      res.status(400);
+      return next(new Error('Administrators cannot delete their own accounts.'));
+    }
+
     // Cascade delete associated user data
     await Certificate.deleteMany({ userId: user._id });
     await Payment.deleteMany({ userId: user._id });
     await Notification.deleteMany({ userId: user._id });
 
     await User.findByIdAndDelete(req.params.id);
+
+    await logAdminAction(req, 'USER_DELETE', user._id, 'User', { username: user.username, email: user.email });
     res.json({ success: true, message: 'User and all associated data deleted successfully' });
   } catch (error) {
     next(error);
@@ -180,6 +199,7 @@ export const adminCreateCourse = async (req, res, next) => {
       category,
       isDraft: isDraft !== undefined ? isDraft : true,
     });
+    await logAdminAction(req, 'COURSE_CREATE', course._id, 'Course', { title: course.title, slug: course.slug });
     res.status(201).json({ success: true, course });
   } catch (error) {
     next(error);
@@ -193,6 +213,7 @@ export const adminUpdateCourse = async (req, res, next) => {
       res.status(404);
       return next(new Error('Course not found'));
     }
+    await logAdminAction(req, 'COURSE_UPDATE', course._id, 'Course', { title: course.title, updates: Object.keys(req.body) });
     res.json({ success: true, course });
   } catch (error) {
     next(error);
@@ -201,7 +222,7 @@ export const adminUpdateCourse = async (req, res, next) => {
 
 export const adminDeleteCourse = async (req, res, next) => {
   try {
-    const course = await Course.findById(req.params.id);
+    const course = await Course.findById(req.params.id).select('title');
     if (!course) {
       res.status(404);
       return next(new Error('Course not found'));
@@ -226,6 +247,7 @@ export const adminDeleteCourse = async (req, res, next) => {
     );
 
     await Course.findByIdAndDelete(req.params.id);
+    await logAdminAction(req, 'COURSE_DELETE', course._id, 'Course', { title: course.title });
     res.json({ success: true, message: 'Course, associated lessons, certificates, payments, and user enrollments deleted successfully' });
   } catch (error) {
     next(error);
@@ -247,6 +269,7 @@ export const adminCreateLesson = async (req, res, next) => {
       codeSnippets,
       order: order || 0,
     });
+    await logAdminAction(req, 'LESSON_CREATE', lesson._id, 'Lesson', { title: lesson.title, courseId });
     res.status(201).json({ success: true, lesson });
   } catch (error) {
     next(error);
@@ -256,6 +279,11 @@ export const adminCreateLesson = async (req, res, next) => {
 export const adminUpdateLesson = async (req, res, next) => {
   try {
     const lesson = await Lesson.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!lesson) {
+      res.status(404);
+      return next(new Error('Lesson not found'));
+    }
+    await logAdminAction(req, 'LESSON_UPDATE', lesson._id, 'Lesson', { title: lesson.title, courseId: lesson.courseId, updates: Object.keys(req.body) });
     res.json({ success: true, lesson });
   } catch (error) {
     next(error);
@@ -264,8 +292,41 @@ export const adminUpdateLesson = async (req, res, next) => {
 
 export const adminDeleteLesson = async (req, res, next) => {
   try {
+    const lesson = await Lesson.findById(req.params.id);
+    if (!lesson) {
+      res.status(404);
+      return next(new Error('Lesson not found'));
+    }
+    const { courseId, title } = lesson;
+
+    // Delete the lesson
     await Lesson.findByIdAndDelete(req.params.id);
-    res.json({ success: true, message: 'Lesson deleted successfully' });
+
+    // Cascadingly clean up users' completedLessons and bookmarks
+    await User.updateMany(
+      {},
+      {
+        $pull: {
+          "enrolledCourses.$[].completedLessons": lesson._id,
+          "bookmarks": { id: lesson._id }
+        }
+      }
+    );
+
+    // Recalculate progress for all users enrolled in this course
+    const totalLessons = await Lesson.countDocuments({ courseId });
+    const enrolledUsers = await User.find({ "enrolledCourses.courseId": courseId });
+    for (const enrolledUser of enrolledUsers) {
+      const enrollment = enrolledUser.enrolledCourses.find((c) => c.courseId.toString() === courseId.toString());
+      if (enrollment) {
+        const completedCount = enrollment.completedLessons.length;
+        enrollment.progress = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
+        await enrolledUser.save();
+      }
+    }
+
+    await logAdminAction(req, 'LESSON_DELETE', lesson._id, 'Lesson', { title, courseId });
+    res.json({ success: true, message: 'Lesson deleted and student progress profiles updated successfully' });
   } catch (error) {
     next(error);
   }
@@ -304,6 +365,7 @@ export const adminCreateBook = async (req, res, next) => {
       rating,
       pages: pages || [],
     });
+    await logAdminAction(req, 'BOOK_CREATE', book._id, 'Book', { title: book.title, author: book.author });
     res.status(201).json({ success: true, book });
   } catch (error) {
     next(error);
@@ -313,6 +375,11 @@ export const adminCreateBook = async (req, res, next) => {
 export const adminUpdateBook = async (req, res, next) => {
   try {
     const book = await Book.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!book) {
+      res.status(404);
+      return next(new Error('Book not found'));
+    }
+    await logAdminAction(req, 'BOOK_UPDATE', book._id, 'Book', { title: book.title, updates: Object.keys(req.body) });
     res.json({ success: true, book });
   } catch (error) {
     next(error);
@@ -321,7 +388,13 @@ export const adminUpdateBook = async (req, res, next) => {
 
 export const adminDeleteBook = async (req, res, next) => {
   try {
+    const book = await Book.findById(req.params.id);
+    if (!book) {
+      res.status(404);
+      return next(new Error('Book not found'));
+    }
     await Book.findByIdAndDelete(req.params.id);
+    await logAdminAction(req, 'BOOK_DELETE', book._id, 'Book', { title: book.title });
     res.json({ success: true, message: 'Book deleted successfully' });
   } catch (error) {
     next(error);
@@ -334,6 +407,7 @@ export const adminDeleteBook = async (req, res, next) => {
 export const adminCreateAnnouncement = async (req, res, next) => {
   try {
     const announcement = await Announcement.create(req.body);
+    await logAdminAction(req, 'ANNOUNCEMENT_CREATE', announcement._id, 'Announcement', { title: announcement.title });
     res.status(201).json({ success: true, announcement });
   } catch (error) {
     next(error);
@@ -343,6 +417,11 @@ export const adminCreateAnnouncement = async (req, res, next) => {
 export const adminUpdateAnnouncement = async (req, res, next) => {
   try {
     const announcement = await Announcement.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!announcement) {
+      res.status(404);
+      return next(new Error('Announcement not found'));
+    }
+    await logAdminAction(req, 'ANNOUNCEMENT_UPDATE', announcement._id, 'Announcement', { title: announcement.title, updates: Object.keys(req.body) });
     res.json({ success: true, announcement });
   } catch (error) {
     next(error);
@@ -351,7 +430,13 @@ export const adminUpdateAnnouncement = async (req, res, next) => {
 
 export const adminDeleteAnnouncement = async (req, res, next) => {
   try {
+    const announcement = await Announcement.findById(req.params.id);
+    if (!announcement) {
+      res.status(404);
+      return next(new Error('Announcement not found'));
+    }
     await Announcement.findByIdAndDelete(req.params.id);
+    await logAdminAction(req, 'ANNOUNCEMENT_DELETE', announcement._id, 'Announcement', { title: announcement.title });
     res.json({ success: true, message: 'Announcement deleted successfully' });
   } catch (error) {
     next(error);
@@ -366,6 +451,7 @@ export const adminCreateCategory = async (req, res, next) => {
   try {
     const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
     const category = await Category.create({ name, slug, icon });
+    await logAdminAction(req, 'CATEGORY_CREATE', category._id, 'Category', { name: category.name });
     res.status(201).json({ success: true, category });
   } catch (error) {
     next(error);
@@ -374,7 +460,13 @@ export const adminCreateCategory = async (req, res, next) => {
 
 export const adminDeleteCategory = async (req, res, next) => {
   try {
+    const category = await Category.findById(req.params.id);
+    if (!category) {
+      res.status(404);
+      return next(new Error('Category not found'));
+    }
     await Category.findByIdAndDelete(req.params.id);
+    await logAdminAction(req, 'CATEGORY_DELETE', category._id, 'Category', { name: category.name });
     res.json({ success: true, message: 'Category deleted successfully' });
   } catch (error) {
     next(error);
@@ -417,7 +509,7 @@ export const adminApprovePayment = async (req, res, next) => {
           await user.save();
         }
       } else if (payment.productType === 'certificate' && payment.productId) {
-        const course = await Course.findById(payment.productId);
+        const course = await Course.findById(payment.productId).select('title');
         const courseTitle = course ? course.title : 'Verified Certificate';
         let cert = await Certificate.findOne({ userId: user._id, courseId: payment.productId });
         if (!cert) {
@@ -446,6 +538,7 @@ export const adminApprovePayment = async (req, res, next) => {
       }
     }
 
+    await logAdminAction(req, 'PAYMENT_APPROVE', payment._id, 'Payment', { userId: payment.userId, productType: payment.productType, productId: payment.productId, amount: payment.amount });
     res.json({ success: true, message: 'Payment approved and access granted successfully!', payment });
   } catch (error) {
     next(error);
@@ -462,7 +555,7 @@ export const adminGrantAccess = async (req, res, next) => {
     }
 
     if (targetType === 'certificate') {
-      const course = await Course.findById(targetId);
+      const course = await Course.findById(targetId).select('title');
       const courseTitle = course ? course.title : 'Verified Certificate';
       let cert = await Certificate.findOne({ userId, courseId: targetId });
       if (!cert) {
@@ -504,6 +597,7 @@ export const adminGrantAccess = async (req, res, next) => {
       await user.save();
     }
 
+    await logAdminAction(req, 'ACCESS_GRANT', targetId, targetType, { userId: user._id, username: user.username });
     res.json({ success: true, message: `Granted ${targetType} access to ${user.username}` });
   } catch (error) {
     next(error);
@@ -520,6 +614,8 @@ export const adminSeedDatabase = async (req, res, next) => {
   }
 
   try {
+    await logAdminAction(req, 'DATABASE_SEED', null, 'Database', { info: 'Wiped collections and reset to default seed data' });
+
     // Clear existing collections
     await User.deleteMany({});
     await Course.deleteMany({});

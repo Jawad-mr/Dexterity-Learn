@@ -26,7 +26,7 @@ export const getCourses = async (req, res, next) => {
       ];
     }
 
-    const courses = await Course.find(query).sort({ createdAt: 1 });
+    const courses = await Course.find(query).select('-quizzes -description').sort({ createdAt: 1 });
     res.json({ success: true, courses });
   } catch (error) {
     next(error);
@@ -38,7 +38,40 @@ export const getCourses = async (req, res, next) => {
 // @access  Public
 export const getCourseBySlug = async (req, res, next) => {
   try {
-    const course = await Course.findOne({ slug: req.params.slug, isDraft: false });
+    const slug = req.params.slug;
+    let isEnrolled = false;
+
+    // Check optional token to allow enrolled/admin draft bypass
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer')) {
+      const token = authHeader.split(' ')[1];
+      try {
+        const jwt = (await import('jsonwebtoken')).default;
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const user = await User.findById(decoded.id);
+        if (user) {
+          if (user.role === 'admin') {
+            isEnrolled = true;
+          } else {
+            const courseObj = await Course.findOne({ slug });
+            if (courseObj) {
+              isEnrolled = user.enrolledCourses.some(
+                (c) => c.courseId.toString() === courseObj._id.toString()
+              );
+            }
+          }
+        }
+      } catch (err) {
+        // ignore invalid token
+      }
+    }
+
+    const query = { slug };
+    if (!isEnrolled) {
+      query.isDraft = false;
+    }
+
+    const course = await Course.findOne(query);
     if (!course) {
       res.status(404);
       return next(new Error('Course not found'));
@@ -69,7 +102,37 @@ export const getLessonContent = async (req, res, next) => {
   const { courseSlug, lessonSlug } = req.params;
 
   try {
-    const course = await Course.findOne({ slug: courseSlug, isDraft: false });
+    let isEnrolled = false;
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer')) {
+      const token = authHeader.split(' ')[1];
+      try {
+        const jwt = (await import('jsonwebtoken')).default;
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const user = await User.findById(decoded.id);
+        if (user) {
+          if (user.role === 'admin') {
+            isEnrolled = true;
+          } else {
+            const courseObj = await Course.findOne({ slug: courseSlug });
+            if (courseObj) {
+              isEnrolled = user.enrolledCourses.some(
+                (c) => c.courseId.toString() === courseObj._id.toString()
+              );
+            }
+          }
+        }
+      } catch (err) {
+        // ignore invalid token
+      }
+    }
+
+    const query = { slug: courseSlug };
+    if (!isEnrolled) {
+      query.isDraft = false;
+    }
+
+    const course = await Course.findOne(query);
     if (!course) {
       res.status(404);
       return next(new Error('Course not found'));
@@ -108,7 +171,7 @@ export const toggleLessonComplete = async (req, res, next) => {
 
   try {
     // 1. Verify course & lesson
-    const course = await Course.findById(courseId);
+    const course = await Course.findById(courseId).select('title');
     if (!course) {
       res.status(404);
       return next(new Error('Course not found'));
