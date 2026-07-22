@@ -224,13 +224,15 @@ export default function BookReader() {
               )}
 
               <button
+                disabled={!bookMeta}
                 onClick={() => {
-                  const pName = encodeURIComponent(bookMeta?.title || 'Tech Ebook Guide');
-                  navigate(`/payment?type=book&productId=${bookMeta?._id}&name=${pName}&price=${pageData.price || 299}`);
+                  if (!bookMeta) return;
+                  const pName = encodeURIComponent(bookMeta.title || 'Tech Ebook Guide');
+                  navigate(`/payment?type=book&productId=${bookMeta._id}&name=${pName}&price=${bookMeta.price || pageData.price || 299}`);
                 }}
-                className="flex items-center justify-center gap-2 w-full bg-brand-400 hover:bg-brand-300 text-slate-950 text-xs font-black py-2.5 rounded-xl border-2 border-slate-950 shadow-flat-sm transition active:translate-y-[1px] active:shadow-none"
+                className="flex items-center justify-center gap-2 w-full bg-brand-400 hover:bg-brand-300 text-slate-950 text-xs font-black py-2.5 rounded-xl border-2 border-slate-950 shadow-flat-sm transition active:translate-y-[1px] active:shadow-none disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <CreditCard className="h-4 w-4" /> Unlock Book via WhatsApp (₹{pageData.price || '299'})
+                <CreditCard className="h-4 w-4" /> Unlock Book via WhatsApp (₹{bookMeta?.price || pageData?.price || '299'})
               </button>
             </div>
           </div>

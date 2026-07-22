@@ -114,7 +114,7 @@ export default function PaymentPage() {
         `----------------------------------------%0A` +
         `*Action:* Please check the attached payment transaction screenshot below and verify my access activation request.`;
 
-      window.open(`https://wa.me/${waNumber}?text=${message}`, '_blank');
+      window.location.href = `https://wa.me/${waNumber}?text=${message}`;
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to initialize WhatsApp checkout order.');
     } finally {

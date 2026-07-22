@@ -13,6 +13,12 @@ export const createOrder = async (req, res, next) => {
   const userId = req.user._id;
 
   try {
+    const isValidObjectId = (id) => /^[0-9a-fA-F]{24}$/.test(id);
+    if (productId && !isValidObjectId(productId)) {
+      res.status(400);
+      return next(new Error('Invalid Product Identifier Format'));
+    }
+
     let amount = reqAmount || 0;
     let name = '';
 
@@ -25,7 +31,7 @@ export const createOrder = async (req, res, next) => {
       name = book.title;
 
       // Check if user already owns this book
-      const ownsBook = req.user.unlockedBooks.some((id) => id.toString() === productId.toString());
+      const ownsBook = (req.user.unlockedBooks || []).some((id) => id && id.toString() === productId.toString());
       if (ownsBook) {
         res.status(400);
         return next(new Error('You already own this e-book.'));
@@ -140,7 +146,10 @@ export const verifyPayment = async (req, res, next) => {
 
       if (payment.productType === 'book') {
         // Unlock E-book (Fix Mongoose ObjectId includes bug)
-        const ownsBook = user.unlockedBooks.some((id) => id.toString() === payment.productId.toString());
+        if (!user.unlockedBooks) {
+          user.unlockedBooks = [];
+        }
+        const ownsBook = user.unlockedBooks.some((id) => id && id.toString() === payment.productId.toString());
         if (!ownsBook) {
           user.unlockedBooks.push(payment.productId);
           user.progress.xp += 50; // Purchase reward XP

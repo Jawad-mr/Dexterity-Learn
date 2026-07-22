@@ -503,7 +503,10 @@ export const adminApprovePayment = async (req, res, next) => {
     const user = await User.findById(payment.userId);
     if (user) {
       if (payment.productType === 'book' && payment.productId) {
-        const ownsBook = user.unlockedBooks.some((id) => id.toString() === payment.productId.toString());
+        if (!user.unlockedBooks) {
+          user.unlockedBooks = [];
+        }
+        const ownsBook = user.unlockedBooks.some((id) => id && id.toString() === payment.productId.toString());
         if (!ownsBook) {
           user.unlockedBooks.push(payment.productId);
           await user.save();
@@ -582,7 +585,10 @@ export const adminGrantAccess = async (req, res, next) => {
         type: 'certificate',
       });
     } else if (targetType === 'book') {
-      const ownsBook = user.unlockedBooks.some((id) => id.toString() === targetId.toString());
+      if (!user.unlockedBooks) {
+        user.unlockedBooks = [];
+      }
+      const ownsBook = user.unlockedBooks.some((id) => id && id.toString() === targetId.toString());
       if (!ownsBook) {
         user.unlockedBooks.push(targetId);
         await user.save();
