@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ChevronLeft, ChevronRight, Clock, CreditCard, Bookmark, BookOpen, AlertCircle, FileText, CheckCircle, Save, Loader2, Edit3, X } from 'lucide-react';
 import { api, useAuth } from '../context/AuthContext';
+import MarkdownRenderer from '../components/MarkdownRenderer';
 
 export default function BookReader() {
   const { slug } = useParams();
@@ -249,22 +250,8 @@ export default function BookReader() {
         ) : null}
 
         {/* Text Area */}
-        <div className={`prose max-w-none ${fontSizes[fontSize]} ${pageData.isLocked ? 'blurred-content' : ''}`}>
-          {pageData.content.split('\n\n').map((para, idx) => {
-            if (para.startsWith('# ')) {
-              return <h1 key={idx} className="font-bold text-lg text-slate-800 dark:text-slate-100 border-b pb-1 border-slate-200 dark:border-slate-800">{para.replace('# ', '')}</h1>;
-            }
-            if (para.startsWith('```')) {
-              const lines = para.split('\n');
-              const codeBlock = lines.slice(1, lines.length - 1).join('\n');
-              return (
-                <pre key={idx} className="bg-slate-950 text-emerald-400 p-3 rounded-xl text-xs font-mono my-2.5 overflow-x-auto">
-                  <code>{codeBlock}</code>
-                </pre>
-              );
-            }
-            return <p key={idx} className="mb-3 leading-relaxed">{para}</p>;
-          })}
+        <div className={`max-w-none ${fontSizes[fontSize]} ${pageData.isLocked ? 'blurred-content' : ''}`}>
+          <MarkdownRenderer content={pageData.content} />
         </div>        {/* Footer info: Page x of y + Reading Time */}
         <div className="text-[10px] text-slate-500 font-bold text-center pt-4 flex justify-between border-t-2 border-slate-950 dark:border-slate-800">
           <span>{bookMeta?.title || 'Ebook'}</span>

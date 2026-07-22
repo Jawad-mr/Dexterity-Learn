@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, ArrowRight, CheckCircle, ChevronLeft, Bookmark, Code, HelpCircle, Play, Sparkles, Check, X, RefreshCw, Loader2 } from 'lucide-react';
 import { api, useAuth } from '../context/AuthContext';
+import MarkdownRenderer from '../components/MarkdownRenderer';
 
 export default function LessonReader() {
   const { courseSlug, lessonSlug } = useParams();
@@ -197,31 +198,8 @@ export default function LessonReader() {
         <div className="bg-white dark:bg-slate-900 border-2 border-slate-950 dark:border-slate-800 rounded-3xl p-5 shadow-flat-lg">
           <h1 className="text-lg font-black text-slate-850 dark:text-slate-100">{lesson.title}</h1>
           
-          <div className="prose dark:prose-invert mt-4">
-            {lesson.content.split('\n\n').map((para, i) => {
-              if (para.startsWith('## ')) {
-                return <h2 key={i}>{para.replace('## ', '')}</h2>;
-              }
-              if (para.startsWith('- ')) {
-                return (
-                  <ul key={i} className="list-disc pl-5 mt-2 space-y-1">
-                    {para.split('\n').map((item, idx) => (
-                      <li key={idx}>{item.replace('- ', '')}</li>
-                    ))}
-                  </ul>
-                );
-              }
-              if (para.startsWith('```')) {
-                const lines = para.split('\n');
-                const codeBlock = lines.slice(1, lines.length - 1).join('\n');
-                return (
-                  <pre key={i} className="bg-slate-900 text-slate-100 rounded-xl p-3 my-3 text-xs overflow-x-auto font-mono">
-                    <code>{codeBlock}</code>
-                  </pre>
-                );
-              }
-              return <p key={i}>{para}</p>;
-            })}
+          <div className="mt-4">
+            <MarkdownRenderer content={lesson.content} />
           </div>
         </div>
 
